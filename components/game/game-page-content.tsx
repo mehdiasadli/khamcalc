@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { GameFinishedBar } from "@/components/game/game-finished-bar"
+import { EndGameButton } from "@/components/game/end-game-dialog"
 import { GameModerationBar } from "@/components/game/game-moderation-bar"
 import { HostFeedbackMenu } from "@/components/game/host-feedback-menu"
 import { PlayerCardList } from "@/components/player-card-list"
@@ -12,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
-import { SettingsIcon, BarChart3Icon } from "lucide-react"
+import { SettingsIcon, BarChart3Icon, FlagIcon } from "lucide-react"
 
 export function GamePageContent() {
   const router = useRouter()
@@ -41,6 +42,15 @@ export function GamePageContent() {
             {isFinished ? <Badge variant="secondary">Finished</Badge> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
+            {!isFinished ? (
+              <EndGameButton
+                variant="ghost"
+                size="icon-sm"
+                aria-label="End game"
+              >
+                <FlagIcon />
+              </EndGameButton>
+            ) : null}
             <HostFeedbackMenu />
             <Link
               href="/stats"
