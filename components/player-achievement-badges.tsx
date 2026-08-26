@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils"
 interface PlayerAchievementBadgesProps {
   achievements: TGameAchievement[]
   className?: string
+  compact?: boolean
 }
 
 export function PlayerAchievementBadges({
   achievements,
   className,
+  compact = false,
 }: PlayerAchievementBadgesProps) {
   if (achievements.length === 0) {
     return null
@@ -29,7 +31,11 @@ export function PlayerAchievementBadges({
           <Badge
             key={`${achievement.type}-${achievement.playerId}`}
             variant="outline"
-            className={cn("font-medium", display.className)}
+            className={cn(
+              "font-medium",
+              compact && "h-5 px-1.5 text-[10px]",
+              display.className
+            )}
           >
             {formatAchievementLabel(achievement.type, achievement.count)}
           </Badge>

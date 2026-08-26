@@ -14,8 +14,11 @@ import {
 import { cn } from "@/lib/utils"
 import { formatScore } from "@/lib/scoring-format"
 import type { TGameAchievement } from "@/schemas/achievement.schema"
+import type { TPlayerAnswerStats } from "@/lib/player-answer-stats"
 import { PlayerAchievementBadges } from "@/components/player-achievement-badges"
-import { PlayerStreakIndicator } from "@/components/player-streak-indicator"
+import { PlayerAnswerStats } from "@/components/player-answer-stats"
+import { PlayerRoundSticks } from "@/components/player-round-sticks"
+import type { TRoundStickState } from "@/lib/round-sticks"
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
 export type PlayerCardStatus = "idle" | "correct" | "wrong" | "disabled"
@@ -28,6 +31,8 @@ export interface PlayerCardProps {
   isLeader?: boolean
   achievements?: TGameAchievement[]
   correctStreak?: number
+  answerStats?: TPlayerAnswerStats
+  roundSticks?: TRoundStickState[] | null
   dragHandle?: React.ReactNode
   isDragging?: boolean
   onCorrect?: () => void
@@ -45,15 +50,40 @@ function getInitials(name: string) {
     .toUpperCase()
 }
 
-function formatScoreValue(score: number) {
-  return formatScore(score)
-}
-
 const statusStyles: Record<PlayerCardStatus, string> = {
   idle: "ring-foreground/5",
   correct: "ring-primary/40 bg-primary/5",
   wrong: "ring-destructive/30 bg-destructive/5",
   disabled: "opacity-55 ring-foreground/5",
+}
+
+function PlayerNameLine({
+  name,
+  correctStreak,
+  isWrong,
+}: {
+  name: string
+  correctStreak: number
+  isWrong: boolean
+}) {
+  return (
+    <p
+      className={cn(
+        "min-w-0 truncate text-sm leading-none font-medium",
+        isWrong && "text-muted-foreground line-through"
+      )}
+    >
+      <span>{name}</span>
+      {correctStreak > 0 ? (
+        <>
+          <span className="font-normal text-muted-foreground/55"> • </span>
+          <span className="font-mono text-[11px] font-normal tracking-wide text-muted-foreground uppercase tabular-nums">
+            {correctStreak} streak
+          </span>
+        </>
+      ) : null}
+    </p>
+  )
 }
 
 export function PlayerCard({
@@ -64,6 +94,8 @@ export function PlayerCard({
   isLeader = false,
   achievements = [],
   correctStreak = 0,
+  answerStats,
+  roundSticks = null,
   dragHandle,
   isDragging = false,
   onCorrect,
@@ -74,69 +106,86 @@ export function PlayerCard({
   const isWrong = status === "wrong" || status === "disabled"
   const isCorrect = status === "correct"
   const hasActions = onCorrect || onIncorrect || onRename || onRemove
+  const showSticks = Boolean(roundSticks && roundSticks.length > 0)
 
   return (
     <Card
       size="sm"
       className={cn(
-        "transition-colors",
+        "overflow-hidden py-0 transition-[background-color,box-shadow,opacity]",
         statusStyles[status],
         isLeader && status === "idle" && "ring-primary/25",
         isDragging && "opacity-60 shadow-md"
       )}
     >
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          {dragHandle}
+      <CardContent
+        className={cn(
+          "flex flex-col gap-3 py-4",
+          showSticks ? "pt-3.5" : undefined
+        )}
+      >
+        {showSticks ? (
+          <PlayerRoundSticks sticks={roundSticks!} className="mb-0.5" />
+        ) : null}
 
-          {rank !== undefined ? (
-            <span
-              className={cn(
-                "w-5 shrink-0 text-center font-mono text-xs tabular-nums",
-                isLeader ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              {rank}
-            </span>
+        <div className="flex items-start gap-2">
+          {dragHandle ? (
+            <div className="flex shrink-0 items-center self-stretch">
+              {dragHandle}
+            </div>
           ) : null}
 
-          <Avatar size="sm">
-            <AvatarFallback>{getInitials(name)}</AvatarFallback>
-          </Avatar>
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            {rank !== undefined ? (
+              <span
+                className={cn(
+                  "w-4 shrink-0 text-center font-mono text-xs leading-none tabular-nums",
+                  isLeader
+                    ? "font-medium text-primary"
+                    : "text-muted-foreground"
+                )}
+                aria-hidden
+                translate="no"
+              >
+                {rank}
+              </span>
+            ) : null}
 
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <span
-              className={cn(
-                "truncate font-medium",
-                isWrong && "text-muted-foreground line-through"
-              )}
-            >
-              {name}
-            </span>
-            <PlayerAchievementBadges achievements={achievements} />
-            <PlayerStreakIndicator
-              streak={correctStreak}
-              isHot={correctStreak >= 3 || (isCorrect && correctStreak >= 2)}
-            />
+            <Avatar size="sm" className="shrink-0">
+              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+            </Avatar>
+
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+              <PlayerNameLine
+                name={name}
+                correctStreak={correctStreak}
+                isWrong={isWrong}
+              />
+
+              {achievements.length > 0 ? (
+                <PlayerAchievementBadges achievements={achievements} compact />
+              ) : null}
+            </div>
           </div>
 
-          <div className="flex shrink-0 flex-col items-end gap-0.5">
+          <div className="flex shrink-0 flex-col items-end gap-1 pl-1">
             <span
               className={cn(
-                "font-mono text-lg leading-none tabular-nums",
+                "font-mono text-xl leading-none tabular-nums",
                 isLeader ? "text-primary" : "text-foreground"
               )}
+              translate="no"
             >
-              {formatScoreValue(score)}
+              {formatScore(score)}
             </span>
-            <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
-              pts
-            </span>
+            {answerStats ? (
+              <PlayerAnswerStats stats={answerStats} className="text-right" />
+            ) : null}
           </div>
         </div>
 
         {hasActions ? (
-          <div className="flex items-center gap-1.5 border-t border-border/60 pt-3">
+          <div className="flex items-center gap-1.5 border-t border-border/50 pt-3">
             {onCorrect ? (
               <Button
                 type="button"

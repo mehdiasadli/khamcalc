@@ -10,6 +10,7 @@ import { formatDuration, formatPercent } from "@/lib/stats-format"
 import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import type { TGameConfig } from "@/schemas/config.schema"
 import type { TPlayer } from "@/schemas/player.schema"
+import { getPlayerAnswerStats } from "@/lib/player-answer-stats"
 
 export interface TGameProgress {
   currentRound: number
@@ -152,16 +153,6 @@ function rankPlayersByScore(
   })
 
   return ranks
-}
-
-function countPlayerCorrect(playerId: string, questions: TQuestionRecord[]) {
-  return questions.filter((record) => record.correctPlayerId === playerId).length
-}
-
-function countPlayerWrong(playerId: string, questions: TQuestionRecord[]) {
-  return questions.filter((record) =>
-    record.wrongPlayerIds.includes(playerId)
-  ).length
 }
 
 function getPlayerParticipationCount(
@@ -350,9 +341,9 @@ export function getPlayerStatsList(input: TAnalyticsInput): TPlayerStats[] {
   }
 
   return players.map((player) => {
-    const correctCount = countPlayerCorrect(player.id, questions)
-    const wrongCount = countPlayerWrong(player.id, questions)
-    const attempts = correctCount + wrongCount
+    const answerStats = getPlayerAnswerStats(player.id, questions)
+    const correctCount = answerStats.correctCount
+    const wrongCount = answerStats.wrongCount
     const participationCount = getPlayerParticipationCount(player.id, questions)
 
     const pointsPerRound: Record<number, number> = {}
@@ -374,7 +365,7 @@ export function getPlayerStatsList(input: TAnalyticsInput): TPlayerStats[] {
       rank: ranks.get(player.id) ?? players.length,
       correctCount,
       wrongCount,
-      accuracy: attempts > 0 ? correctCount / attempts : null,
+      accuracy: answerStats.accuracy,
       pointsPerRound,
       participationRate:
         questions.length > 0 ? participationCount / questions.length : 0,

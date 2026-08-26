@@ -40,6 +40,8 @@ import {
   getWrongDeductionPoints,
 } from "@/lib/scoring"
 import { formatScore } from "@/lib/scoring-format"
+import { getPlayerAnswerStats } from "@/lib/player-answer-stats"
+import { getPlayerRoundSticks } from "@/lib/round-sticks"
 import { getCurrentCorrectStreak } from "@/lib/streaks"
 import {
   useAppStore,
@@ -65,6 +67,8 @@ function useRankedGamePlayers() {
   const disabledIds = useQuestionDisabledPlayerIds()
   const achievements = useAppStore((state) => state.game?.achievements ?? [])
   const questions = useAppStore((state) => state.game?.questions ?? [])
+  const game = useAppStore((state) => state.game)
+  const config = useAppStore((state) => state.config)
 
   return useMemo(() => {
     const sorted = [...players].sort((a, b) => b.score - a.score)
@@ -90,9 +94,19 @@ function useRankedGamePlayers() {
           getPlayerAchievements(achievements, player.id)
         ),
         correctStreak: getCurrentCorrectStreak(player.id, questions),
+        answerStats: getPlayerAnswerStats(player.id, questions),
+        roundSticks: game
+          ? getPlayerRoundSticks(
+              player.id,
+              game.currentRound,
+              game.currentQuestion,
+              questions,
+              config.questionsPerRound
+            )
+          : null,
       }
     })
-  }, [players, currentRecord, disabledIds, achievements, questions])
+  }, [players, currentRecord, disabledIds, achievements, questions, game, config])
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
@@ -225,6 +239,8 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
       isLeader: player.isLeader,
       achievements: player.achievements,
       correctStreak: player.correctStreak,
+      answerStats: player.answerStats,
+      roundSticks: player.roundSticks,
       onCorrect: disabled
         ? undefined
         : () => handleCorrectClick(player.id, player.status),
