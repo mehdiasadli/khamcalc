@@ -16,6 +16,7 @@ import {
   PlayerCard,
   type PlayerCardStatus,
 } from "@/components/player-card"
+import { PlayerRenameDialog } from "@/components/player-rename-dialog"
 import {
   useAppStore,
   useCurrentQuestionRecord,
@@ -26,7 +27,12 @@ import {
 type ConfirmDialog =
   | { type: "undo-correct"; playerId: string }
   | { type: "undo-incorrect"; playerId: string }
+  | { type: "remove"; playerId: string }
   | null
+
+interface PlayerCardListProps {
+  disabled?: boolean
+}
 
 function useRankedGamePlayers() {
   const players = usePlayerScores()
@@ -57,14 +63,19 @@ function useRankedGamePlayers() {
   }, [players, currentRecord, disabledIds])
 }
 
-export function PlayerCardList() {
+export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
+  const players = useAppStore((state) => state.players)
   const rankedPlayers = useRankedGamePlayers()
   const markCorrect = useAppStore((state) => state.markCorrect)
   const markWrong = useAppStore((state) => state.markWrong)
   const undoCorrect = useAppStore((state) => state.undoCorrect)
+  const updatePlayer = useAppStore((state) => state.updatePlayer)
+  const removePlayer = useAppStore((state) => state.removePlayer)
 
+  const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog>(null)
 
+  const renamePlayer = players.find((player) => player.id === renamePlayerId)
   const confirmTarget = rankedPlayers.find(
     (player) => player.id === confirmDialog?.playerId
   )
@@ -106,7 +117,15 @@ export function PlayerCardList() {
       handleStoreAction(() => markWrong(confirmDialog.playerId))
     }
 
+    if (confirmDialog.type === "remove") {
+      handleStoreAction(() => removePlayer(confirmDialog.playerId))
+    }
+
     setConfirmDialog(null)
+  }
+
+  function handleRename(playerId: string, name: string) {
+    handleStoreAction(() => updatePlayer(playerId, name))
   }
 
   return (
@@ -120,12 +139,40 @@ export function PlayerCardList() {
               rank={player.rank}
               status={player.status}
               isLeader={player.isLeader}
-              onCorrect={() => handleCorrectClick(player.id, player.status)}
-              onIncorrect={() => handleIncorrectClick(player.id, player.status)}
+              onCorrect={
+                disabled
+                  ? undefined
+                  : () => handleCorrectClick(player.id, player.status)
+              }
+              onIncorrect={
+                disabled
+                  ? undefined
+                  : () => handleIncorrectClick(player.id, player.status)
+              }
+              onRename={
+                disabled ? undefined : () => setRenamePlayerId(player.id)
+              }
+              onRemove={
+                disabled
+                  ? undefined
+                  : () =>
+                      setConfirmDialog({ type: "remove", playerId: player.id })
+              }
             />
           </li>
         ))}
       </ul>
+
+      <PlayerRenameDialog
+        open={renamePlayerId !== null}
+        onOpenChange={(open) => {
+          if (!open) setRenamePlayerId(null)
+        }}
+        playerId={renamePlayerId}
+        playerName={renamePlayer?.name ?? ""}
+        existingNames={players}
+        onConfirm={handleRename}
+      />
 
       <AlertDialog
         open={confirmDialog !== null}
@@ -138,7 +185,9 @@ export function PlayerCardList() {
             <AlertDialogTitle>
               {confirmDialog?.type === "undo-correct"
                 ? "Undo correct answer?"
-                : "Undo incorrect answer?"}
+                : confirmDialog?.type === "undo-incorrect"
+                  ? "Undo incorrect answer?"
+                  : "Remove player?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog?.type === "undo-correct" ? (
@@ -146,18 +195,30 @@ export function PlayerCardList() {
                   This removes 100 points from{" "}
                   <span className="text-foreground">{confirmTarget?.name}</span>.
                 </>
-              ) : (
+              ) : null}
+              {confirmDialog?.type === "undo-incorrect" ? (
                 <>
                   <span className="text-foreground">{confirmTarget?.name}</span>{" "}
                   will be eligible again for this question.
                 </>
-              )}
+              ) : null}
+              {confirmDialog?.type === "remove" ? (
+                <>
+                  <span className="text-foreground">{confirmTarget?.name}</span>{" "}
+                  will be removed from the player list.
+                </>
+              ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDialog}>
-              Confirm
+            <AlertDialogAction
+              variant={
+                confirmDialog?.type === "remove" ? "destructive" : "default"
+              }
+              onClick={handleConfirmDialog}
+            >
+              {confirmDialog?.type === "remove" ? "Remove" : "Confirm"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
