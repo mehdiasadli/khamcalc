@@ -37,6 +37,7 @@ import { getActivePlayers } from "@/lib/players"
 import {
   useAppStore,
   useCurrentQuestionRecord,
+  useHostFeedback,
   usePlayerScores,
   useQuestionDisabledPlayerIds,
 } from "@/stores"
@@ -92,6 +93,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
   const updatePlayer = useAppStore((state) => state.updatePlayer)
   const removePlayer = useAppStore((state) => state.removePlayer)
   const reorderPlayers = useAppStore((state) => state.reorderPlayers)
+  const playFeedback = useHostFeedback()
 
   const playerIds = useMemo(
     () => rankedPlayers.map((player) => player.id),
@@ -132,6 +134,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
     }
 
     handleStoreAction(() => markCorrect(playerId))
+    playFeedback("correct")
   }
 
   function handleIncorrectClick(playerId: string, status: PlayerCardStatus) {
@@ -141,6 +144,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
     }
 
     handleStoreAction(() => markWrong(playerId))
+    playFeedback("incorrect")
   }
 
   function handleConfirmDialog() {
@@ -148,10 +152,12 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
 
     if (confirmDialog.type === "undo-correct") {
       handleStoreAction(() => undoCorrect(confirmDialog.playerId))
+      playFeedback("undo")
     }
 
     if (confirmDialog.type === "undo-incorrect") {
       handleStoreAction(() => markWrong(confirmDialog.playerId))
+      playFeedback("undo")
     }
 
     if (confirmDialog.type === "remove") {

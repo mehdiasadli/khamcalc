@@ -17,6 +17,7 @@ import {
   useAppStore,
   useCanGoPrevious,
   useCanUndoQuestion,
+  useHostFeedback,
   useShouldShowFinish,
 } from "@/stores"
 import {
@@ -35,6 +36,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
   const nextQuestion = useAppStore((state) => state.nextQuestion)
   const undoQuestion = useAppStore((state) => state.undoQuestion)
   const finishGame = useAppStore((state) => state.finishGame)
+  const playFeedback = useHostFeedback()
 
   const canGoPrevious = useCanGoPrevious()
   const canUndoQuestion = useCanUndoQuestion()
@@ -119,6 +121,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
               variant="destructive"
               onClick={() => {
                 handleStoreAction(undoQuestion)
+                playFeedback("undo")
                 setUndoQuestionOpen(false)
               }}
             >

@@ -184,9 +184,9 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 11.1 | **Haptic feedback** — short `navigator.vibrate()` on correct / incorrect (mobile) | ⬜ |
-| 11.2 | **Optional sound cues** — subtle correct/wrong/undo sounds; mute toggle in setup or game header | ⬜ |
-| 11.3 | **Respect reduced motion / silent mode** | ⬜ |
+| 11.1 | **Haptic feedback** — short `navigator.vibrate()` on correct / incorrect (mobile) | ✅ |
+| 11.2 | **Optional sound cues** — subtle correct/wrong/undo sounds; mute toggle in setup or game header | ✅ |
+| 11.3 | **Respect reduced motion / silent mode** | ✅ |
 
 ---
 
@@ -208,7 +208,7 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
          Update 11 (haptics/audio)
 ```
 
-**Recommended next step:** Update 11 (haptics & audio).
+**Recommended next step:** Roadmap complete — polish, deploy, or replace generated PWA icons.
 
 ---
 
@@ -240,3 +240,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 8 complete — drag-to-reorder players on game page |
 | 2026-08-27 | Update 9 complete — PWA manifest, icons, Serwist SW, install prompt |
 | 2026-08-27 | Update 10 complete — per-route SEO, OG/Twitter, canonical URLs |
+| 2026-08-27 | Update 11 complete — host-configurable sounds and haptics |

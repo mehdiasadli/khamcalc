@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 
 import { GameFinishedBar } from "@/components/game/game-finished-bar"
 import { GameModerationBar } from "@/components/game/game-moderation-bar"
+import { HostFeedbackMenu } from "@/components/game/host-feedback-menu"
 import { PlayerCardList } from "@/components/player-card-list"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -40,6 +41,7 @@ export function GamePageContent() {
             {isFinished ? <Badge variant="secondary">Finished</Badge> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
+            <HostFeedbackMenu />
             <Link
               href="/stats"
               aria-label="Stats"

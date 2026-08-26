@@ -5,6 +5,7 @@ export {
   useCanUndoQuestion,
   useCurrentQuestionRecord,
   useGameAnalytics,
+  useHostFeedback,
   usePlayerScores,
   useQuestionDisabledPlayerIds,
   useShouldShowFinish,

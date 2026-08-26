@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { NewGameButton } from "@/components/game/new-game-dialog"
 import { AddPlayerForm } from "@/components/setup/add-player-form"
 import { GameConfigSection } from "@/components/setup/game-config-section"
+import { HostFeedbackSection } from "@/components/setup/host-feedback-section"
 import { SetupFinishedSummary } from "@/components/setup/setup-finished-summary"
 import { SetupPlayerList } from "@/components/setup/setup-player-list"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -61,6 +62,8 @@ export function SetupPage() {
       <SetupFinishedSummary />
 
       <GameConfigSection />
+
+      <HostFeedbackSection />
 
       <Card size="sm">
         <CardHeader>

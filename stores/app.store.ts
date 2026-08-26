@@ -9,6 +9,12 @@ import {
   UpdateGameConfigSchema,
   type TGameConfig,
 } from "@/schemas/config.schema"
+import {
+  defaultHostPreferences,
+  HostPreferencesSchema,
+  UpdateHostPreferencesSchema,
+  type THostPreferences,
+} from "@/schemas/host-preferences.schema"
 import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import { recomputeAchievements } from "@/lib/achievements"
 import {
@@ -41,6 +47,7 @@ import { persist } from "zustand/middleware"
 
 export interface TAppState {
   config: TGameConfig
+  hostPreferences: THostPreferences
   players: TPlayer[]
   playerOrder: string[]
   game: TGameState | null
@@ -49,6 +56,7 @@ export interface TAppState {
 export interface TAppActions {
   setConfig: (input: Partial<TGameConfig>) => void
   applyConfigPreset: (config: TGameConfig) => void
+  setHostPreferences: (input: Partial<THostPreferences>) => void
 
   addPlayer: (name: string) => TPlayer
   updatePlayer: (id: string, name: string) => void
@@ -76,6 +84,7 @@ export const initialConfig: TGameConfig = {
 
 export const initialAppState: TAppState = {
   config: initialConfig,
+  hostPreferences: defaultHostPreferences,
   players: [],
   playerOrder: [],
   game: null,
@@ -156,6 +165,15 @@ export const useAppStore = create<TAppStore>()(
 
       applyConfigPreset: (config) => {
         set({ config: GameConfigSchema.parse(config) })
+      },
+
+      setHostPreferences: (input) => {
+        const hostPreferences = UpdateHostPreferencesSchema.parse({
+          ...get().hostPreferences,
+          ...input,
+        })
+
+        set({ hostPreferences: HostPreferencesSchema.parse(hostPreferences) })
       },
 
       addPlayer: (name) => {

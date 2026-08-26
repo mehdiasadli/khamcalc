@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 
 import {
@@ -11,6 +11,8 @@ import {
 } from "@/lib/game"
 import { getOrderedActivePlayers } from "@/lib/players"
 import { getGameAnalytics, type TGameAnalytics } from "@/lib/analytics"
+import type { HostFeedbackEvent } from "@/lib/feedback/haptics"
+import { playHostFeedback } from "@/lib/feedback/play-host-feedback"
 import { useAppStore } from "@/stores/app.store"
 
 const EMPTY_IDS: string[] = []
@@ -96,4 +98,15 @@ export function useGameAnalytics(): TGameAnalytics | null {
 
     return getGameAnalytics({ game, config, players })
   }, [game, config, players])
+}
+
+export function useHostFeedback() {
+  const hostPreferences = useAppStore((state) => state.hostPreferences)
+
+  return useCallback(
+    (event: HostFeedbackEvent) => {
+      playHostFeedback(event, hostPreferences)
+    },
+    [hostPreferences]
+  )
 }
