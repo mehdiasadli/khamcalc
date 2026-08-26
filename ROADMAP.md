@@ -70,13 +70,13 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 3.1 | **`/stats` route** — client page, redirects to setup if no active/finished game | ⬜ |
-| 3.2 | **nuqs tab state** — `?tab=overview` \| `?tab=players` (default `overview`) | ⬜ |
-| 3.3 | **Overview tab** — metric cards + placeholders for charts | ⬜ |
-| 3.4 | **Players tab** — per-player stat cards / table | ⬜ |
-| 3.5 | **Stats link in game header** — chart icon beside gear | ⬜ |
-| 3.6 | **Empty state** — no game → friendly message + link to setup | ⬜ |
-| 3.7 | **Live updates** — stats recompute as host marks answers (subscribe to store) | ⬜ |
+| 3.1 | **`/stats` route** — client page, redirects to setup if no active/finished game | ✅ |
+| 3.2 | **nuqs tab state** — `?tab=overview` \| `?tab=players` (default `overview`) | ✅ |
+| 3.3 | **Overview tab** — metric cards + placeholders for charts | ✅ |
+| 3.4 | **Players tab** — per-player stat cards / table | ✅ |
+| 3.5 | **Stats link in game header** — chart icon beside gear | ✅ |
+| 3.6 | **Empty state** — no game → friendly message + link to setup | ✅ |
+| 3.7 | **Live updates** — stats recompute as host marks answers (subscribe to store) | ✅ |
 
 **Deps:** `nuqs`, shadcn `Tabs`
 
@@ -232,3 +232,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Initial roadmap from grill-me feedback session |
 | 2026-08-27 | Update 1 complete — skipped questions, soft-delete, player order, Ace achievements |
 | 2026-08-27 | Update 2 complete — analytics engine and formatGameSummary |
+| 2026-08-27 | Update 3 complete — stats page shell with nuqs tabs |

@@ -10,6 +10,7 @@ import {
   shouldShowFinish,
 } from "@/lib/game"
 import { getOrderedActivePlayers } from "@/lib/players"
+import { getGameAnalytics, type TGameAnalytics } from "@/lib/analytics"
 import { useAppStore } from "@/stores/app.store"
 
 const EMPTY_IDS: string[] = []
@@ -83,4 +84,16 @@ export function usePlayerScores() {
       })),
     [players, playerOrder, scores]
   )
+}
+
+export function useGameAnalytics(): TGameAnalytics | null {
+  const game = useAppStore((state) => state.game)
+  const config = useAppStore((state) => state.config)
+  const players = useAppStore((state) => state.players)
+
+  return useMemo(() => {
+    if (!game) return null
+
+    return getGameAnalytics({ game, config, players })
+  }, [game, config, players])
 }

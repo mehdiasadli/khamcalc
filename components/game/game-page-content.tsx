@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
-import { SettingsIcon } from "lucide-react"
+import { SettingsIcon, BarChart3Icon } from "lucide-react"
 
 export function GamePageContent() {
   const router = useRouter()
@@ -38,13 +38,22 @@ export function GamePageContent() {
             </p>
             {isFinished ? <Badge variant="secondary">Finished</Badge> : null}
           </div>
-          <Link
-            href="/"
-            aria-label="Setup"
-            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
-          >
-            <SettingsIcon />
-          </Link>
+          <div className="flex shrink-0 items-center gap-1">
+            <Link
+              href="/stats"
+              aria-label="Stats"
+              className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+            >
+              <BarChart3Icon />
+            </Link>
+            <Link
+              href="/"
+              aria-label="Setup"
+              className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+            >
+              <SettingsIcon />
+            </Link>
+          </div>
         </div>
       </header>
 
