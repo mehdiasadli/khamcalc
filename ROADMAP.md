@@ -157,11 +157,11 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 9.1 | **Web app manifest** — name, short_name, description, theme_color, background_color, display `standalone`, start_url | ⬜ |
-| 9.2 | **App icons** — 192, 512, maskable, apple-touch-icon | ⬜ |
-| 9.3 | **Service worker** — cache static assets + app shell; offline fallback | ⬜ |
-| 9.4 | **Offline game/score** — Zustand persist already local; verify works without network after first load | ⬜ |
-| 9.5 | **Install prompt UX** — optional subtle banner when `beforeinstallprompt` fires | ⬜ |
+| 9.1 | **Web app manifest** — name, short_name, description, theme_color, background_color, display `standalone`, start_url | ✅ |
+| 9.2 | **App icons** — 192, 512, maskable, apple-touch-icon | ✅ |
+| 9.3 | **Service worker** — cache static assets + app shell; offline fallback | ✅ |
+| 9.4 | **Offline game/score** — Zustand persist already local; verify works without network after first load | ✅ |
+| 9.5 | **Install prompt UX** — optional subtle banner when `beforeinstallprompt` fires | ✅ |
 
 **Skill:** [pwa-development](https://skills.sh/alinaqi/maggy/pwa-development) (2.9K installs) — `npx skills add alinaqi/maggy@pwa-development`
 
@@ -208,7 +208,7 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
          Update 11 (haptics/audio)
 ```
 
-**Recommended next step:** Update 9 (PWA) or Update 10 (SEO) — can parallelize.
+**Recommended next step:** Update 10 (SEO & page metadata) — reuse the PWA icon set.
 
 ---
 
@@ -238,3 +238,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 6 complete — finished flow, new game, config lock |
 | 2026-08-27 | Update 7 complete — Ace badge UI on player cards |
 | 2026-08-27 | Update 8 complete — drag-to-reorder players on game page |
+| 2026-08-27 | Update 9 complete — PWA manifest, icons, Serwist SW, install prompt |
