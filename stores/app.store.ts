@@ -16,7 +16,7 @@ import {
   findQuestionRecord,
   getCurrentQuestionRecord,
   getNextPosition,
-  getRoundDisabledPlayerIds,
+  getQuestionDisabledPlayerIds,
   isPlayerDisabledForQuestion,
   recalculateScores,
   removeQuestionsForRound,
@@ -266,17 +266,6 @@ export const useAppStore = create<TAppStore>()(
           throw new Error("Correct player cannot be marked wrong")
         }
 
-        if (
-          isPlayerDisabledForQuestion(
-            game.questions,
-            game.currentRound,
-            game.currentQuestion,
-            playerId
-          )
-        ) {
-          throw new Error("Player is disabled for this round")
-        }
-
         const wrongPlayerIds = current.wrongPlayerIds.includes(playerId)
           ? current.wrongPlayerIds.filter((id) => id !== playerId)
           : [...current.wrongPlayerIds, playerId]
@@ -302,26 +291,17 @@ export const useAppStore = create<TAppStore>()(
           throw new Error("Player not found")
         }
 
-        if (
-          isPlayerDisabledForQuestion(
-            game.questions,
-            game.currentRound,
-            game.currentQuestion,
-            playerId
-          )
-        ) {
-          throw new Error("Player is disabled for this round")
-        }
-
         const atLeadingEdge = isAtLeadingEdge(game)
         const current = getQuestionRecordOrDefault(game)
+
+        if (isPlayerDisabledForQuestion(current, playerId)) {
+          throw new Error("Player is disabled for this question")
+        }
 
         const record: TQuestionRecord = {
           ...current,
           correctPlayerId: playerId,
-          wrongPlayerIds: current.wrongPlayerIds.filter(
-            (id) => id !== playerId
-          ),
+          wrongPlayerIds: current.wrongPlayerIds,
         }
 
         const questions = upsertQuestionRecord(game.questions, record)
@@ -479,15 +459,12 @@ export function useShouldShowFinish() {
   })
 }
 
-export function useRoundDisabledPlayerIds() {
+export function useQuestionDisabledPlayerIds() {
   return useAppStore((state) => {
     if (!state.game) return []
 
-    return getRoundDisabledPlayerIds(
-      state.game.questions,
-      state.game.currentRound,
-      state.game.currentQuestion
-    )
+    const record = getCurrentQuestionRecord(state.game)
+    return getQuestionDisabledPlayerIds(record)
   })
 }
 

@@ -2,7 +2,7 @@ export {
   useAppStore,
   useCurrentQuestionRecord,
   usePlayerScores,
-  useRoundDisabledPlayerIds,
+  useQuestionDisabledPlayerIds,
   useShouldShowFinish,
 } from "./app.store"
 export type { TAppActions, TAppState, TAppStore } from "./app.store"

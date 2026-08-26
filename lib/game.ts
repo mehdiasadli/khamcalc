@@ -211,33 +211,17 @@ export function createInitialGameState(playerIds: string[]): TGameState {
   }
 }
 
-export function getRoundDisabledPlayerIds(
-  questions: TQuestionRecord[],
-  round: number,
-  question: number
+export function getQuestionDisabledPlayerIds(
+  record: TQuestionRecord | undefined
 ): string[] {
-  const disabled = new Set<string>()
-
-  for (const record of questions) {
-    if (record.round !== round || record.question >= question) continue
-
-    for (const playerId of record.wrongPlayerIds) {
-      disabled.add(playerId)
-    }
-  }
-
-  return [...disabled]
+  return record?.wrongPlayerIds ?? []
 }
 
 export function isPlayerDisabledForQuestion(
-  questions: TQuestionRecord[],
-  round: number,
-  question: number,
+  record: TQuestionRecord | undefined,
   playerId: string
 ): boolean {
-  return getRoundDisabledPlayerIds(questions, round, question).includes(
-    playerId
-  )
+  return record?.wrongPlayerIds.includes(playerId) ?? false
 }
 
 export function getCurrentQuestionRecord(
