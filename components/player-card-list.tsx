@@ -17,6 +17,7 @@ import {
   type PlayerCardStatus,
 } from "@/components/player-card"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
+import { getPlayerAchievements } from "@/lib/achievements"
 import { getActivePlayers } from "@/lib/players"
 import {
   useAppStore,
@@ -39,6 +40,7 @@ function useRankedGamePlayers() {
   const players = usePlayerScores()
   const currentRecord = useCurrentQuestionRecord()
   const disabledIds = useQuestionDisabledPlayerIds()
+  const achievements = useAppStore((state) => state.game?.achievements ?? [])
 
   return useMemo(() => {
     const sorted = [...players].sort((a, b) => b.score - a.score)
@@ -59,9 +61,10 @@ function useRankedGamePlayers() {
         rank,
         isLeader: player.score === topScore && topScore > 0,
         status,
+        achievements: getPlayerAchievements(achievements, player.id),
       }
     })
-  }, [players, currentRecord, disabledIds])
+  }, [players, currentRecord, disabledIds, achievements])
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
@@ -141,6 +144,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
               rank={player.rank}
               status={player.status}
               isLeader={player.isLeader}
+              achievements={player.achievements}
               onCorrect={
                 disabled
                   ? undefined

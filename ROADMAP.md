@@ -129,10 +129,10 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 7.1 | **Ace achievement** — all questions in a round answered correctly by same player (see 1.5 for rules) | ⬜ |
-| 7.2 | **Badge UI on `PlayerCard`** — below name; emoji + color per type; stack `Ace ×2` | ⬜ |
-| 7.3 | **Ace definition** — emoji 🎯 (or similar), distinct badge color | ⬜ |
-| 7.4 | **Hook into game flow** — evaluate on round boundary / when round completes | ⬜ |
+| 7.1 | **Ace achievement** — all questions in a round answered correctly by same player (see 1.5 for rules) | ✅ |
+| 7.2 | **Badge UI on `PlayerCard`** — below name; emoji + color per type; stack `Ace ×2` | ✅ |
+| 7.3 | **Ace definition** — emoji 🎯 (or similar), distinct badge color | ✅ |
+| 7.4 | **Hook into game flow** — evaluate on round boundary / when round completes | ✅ |
 
 **Future achievements (backlog, not scheduled):** Hot streak, Comeback, Sweep, etc.
 
@@ -208,7 +208,7 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
          Update 11 (haptics/audio)
 ```
 
-**Recommended next step:** Update 1 (data foundation) — unblocks analytics, achievements, and accurate skip tracking.
+**Recommended next step:** Update 8 (player reorder via DnD) — depends on 1.3 player order in store.
 
 ---
 
@@ -236,3 +236,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 4 complete — shadcn charts and enhanced stats views |
 | 2026-08-27 | Update 5 complete — copy summary and share sheet |
 | 2026-08-27 | Update 6 complete — finished flow, new game, config lock |
+| 2026-08-27 | Update 7 complete — Ace badge UI on player cards |

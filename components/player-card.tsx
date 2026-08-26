@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import type { TGameAchievement } from "@/schemas/achievement.schema"
+import { PlayerAchievementBadges } from "@/components/player-achievement-badges"
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
 export type PlayerCardStatus = "idle" | "correct" | "wrong" | "disabled"
@@ -22,6 +24,7 @@ export interface PlayerCardProps {
   rank?: number
   status?: PlayerCardStatus
   isLeader?: boolean
+  achievements?: TGameAchievement[]
   onCorrect?: () => void
   onIncorrect?: () => void
   onRename?: () => void
@@ -54,6 +57,7 @@ export function PlayerCard({
   rank,
   status = "idle",
   isLeader = false,
+  achievements = [],
   onCorrect,
   onIncorrect,
   onRename,
@@ -89,14 +93,17 @@ export function PlayerCard({
             <AvatarFallback>{getInitials(name)}</AvatarFallback>
           </Avatar>
 
-          <span
-            className={cn(
-              "min-w-0 flex-1 truncate font-medium",
-              isWrong && "text-muted-foreground line-through"
-            )}
-          >
-            {name}
-          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span
+              className={cn(
+                "truncate font-medium",
+                isWrong && "text-muted-foreground line-through"
+              )}
+            >
+              {name}
+            </span>
+            <PlayerAchievementBadges achievements={achievements} />
+          </div>
 
           <div className="flex shrink-0 flex-col items-end gap-0.5">
             <span
