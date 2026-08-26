@@ -8,6 +8,7 @@ import { GameFinishedBar } from "@/components/game/game-finished-bar"
 import { EndGameButton } from "@/components/game/end-game-dialog"
 import { GameModerationBar } from "@/components/game/game-moderation-bar"
 import { HostFeedbackMenu } from "@/components/game/host-feedback-menu"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { PlayerCardList } from "@/components/player-card-list"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -73,6 +74,7 @@ export function GamePageContent() {
               </EndGameButton>
             ) : null}
             <HostFeedbackMenu />
+            <ThemeToggle />
             <Link
               href="/stats"
               aria-label="Stats"

@@ -16,10 +16,7 @@ import {
   SHARE_TARGETS,
   type TShareTarget,
 } from "@/lib/share"
-import {
-  ClipboardCopyIcon,
-  Share2Icon,
-} from "lucide-react"
+import { Share2Icon } from "lucide-react"
 
 interface StatsShareActionsProps {
   summary: string
@@ -56,33 +53,22 @@ export function StatsShareActions({ summary }: StatsShareActionsProps) {
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={copyLabel === "Copy" ? "Copy summary" : copyLabel}
-          onClick={() => void handleCopy()}
-        >
-          <ClipboardCopyIcon />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Share summary"
-          onClick={() => setSheetOpen(true)}
-        >
-          <Share2Icon />
-        </Button>
-      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Share summary"
+        onClick={() => setSheetOpen(true)}
+      >
+        <Share2Icon />
+      </Button>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl">
           <SheetHeader>
             <SheetTitle>Share game summary</SheetTitle>
             <SheetDescription>
-              Send scores and stats to your group chat.
+              Copy or send scores and stats to your group chat.
             </SheetDescription>
           </SheetHeader>
 

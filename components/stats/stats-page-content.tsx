@@ -7,6 +7,7 @@ import { parseAsStringLiteral, useQueryState } from "nuqs"
 import { StatsOverviewTab } from "@/components/stats/stats-overview-tab"
 import { StatsPlayersTab } from "@/components/stats/stats-players-tab"
 import { StatsShareActions } from "@/components/stats/stats-share-actions"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { formatGameSummary } from "@/lib/analytics"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -89,6 +90,7 @@ export function StatsPageContent() {
             </div>
             <div className="flex shrink-0 items-center gap-1">
               <StatsShareActions summary={summary} />
+              <ThemeToggle />
               <Link
                 href="/game"
                 aria-label="Back to game"

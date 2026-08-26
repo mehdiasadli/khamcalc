@@ -11,6 +11,7 @@ import { HostFeedbackSection } from "@/components/setup/host-feedback-section"
 import { ScoringConfigSection } from "@/components/setup/scoring-config-section"
 import { SetupFinishedSummary } from "@/components/setup/setup-finished-summary"
 import { SetupPlayerList } from "@/components/setup/setup-player-list"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
@@ -50,14 +51,17 @@ export function SetupPage() {
 
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-md flex-col gap-6 p-4 pb-28 sm:p-6 sm:pb-32">
-      <header className="flex flex-col gap-1 border-b border-border pb-4">
-        <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
-          Setup
-        </p>
-        <h1 className="font-heading text-xl font-medium">KhamCalc</h1>
-        <p className="text-sm text-muted-foreground">
-          Configure the game and add players before you start scoring.
-        </p>
+      <header className="flex items-start justify-between gap-3 border-b border-border pb-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
+            Setup
+          </p>
+          <h1 className="font-heading text-xl font-medium">KhamCalc</h1>
+          <p className="text-sm text-muted-foreground">
+            Configure the game and add players before you start scoring.
+          </p>
+        </div>
+        <ThemeToggle className="shrink-0" />
       </header>
 
       <SetupFinishedSummary />

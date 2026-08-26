@@ -27,7 +27,6 @@ export type TShareTargetId =
   | "whatsapp"
   | "telegram"
   | "twitter"
-  | "discord"
   | "copy"
 
 export interface TShareTarget {
@@ -56,12 +55,6 @@ export const SHARE_TARGETS: TShareTarget[] = [
     label: "X (Twitter)",
     description: "Post the summary on X",
     href: buildTwitterShareUrl,
-  },
-  {
-    id: "discord",
-    label: "Discord",
-    description: "Copy summary, then paste in Discord",
-    copiesOnly: true,
   },
   {
     id: "copy",
