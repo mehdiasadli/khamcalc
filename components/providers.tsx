@@ -1,15 +1,12 @@
 "use client"
 
-import {
-  ThemeProvider as NextThemesProvider,
-  ThemeProviderProps,
-} from "next-themes"
+import { ThemeProvider } from "@/components/theme-provider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
-export function Providers({ children, ...props }: ThemeProviderProps) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <NuqsAdapter>
-      <NextThemesProvider {...props}>{children}</NextThemesProvider>
+      <ThemeProvider>{children}</ThemeProvider>
     </NuqsAdapter>
   )
 }
