@@ -9,6 +9,7 @@ import {
   questionHasAnswers,
   shouldShowFinish,
 } from "@/lib/game"
+import { getOrderedActivePlayers } from "@/lib/players"
 import { useAppStore } from "@/stores/app.store"
 
 const EMPTY_IDS: string[] = []
@@ -71,14 +72,15 @@ export function useQuestionDisabledPlayerIds() {
 
 export function usePlayerScores() {
   const players = useAppStore((state) => state.players)
+  const playerOrder = useAppStore((state) => state.playerOrder)
   const scores = useAppStore((state) => state.game?.scores)
 
   return useMemo(
     () =>
-      players.map((player) => ({
+      getOrderedActivePlayers(players, playerOrder).map((player) => ({
         ...player,
         score: scores?.[player.id] ?? 0,
       })),
-    [players, scores]
+    [players, playerOrder, scores]
   )
 }

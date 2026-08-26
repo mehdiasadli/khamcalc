@@ -11,7 +11,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { MAX_PLAYERS } from "@/lib/players"
+import { getActivePlayerCount, MAX_PLAYERS } from "@/lib/players"
 import { PlayerNameSchema } from "@/schemas/player.schema"
 import { useAppStore } from "@/stores"
 import { PlusIcon } from "lucide-react"
@@ -22,7 +22,8 @@ interface AddPlayerFormProps {
 
 export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
   const addPlayer = useAppStore((state) => state.addPlayer)
-  const playerCount = useAppStore((state) => state.players.length)
+  const players = useAppStore((state) => state.players)
+  const playerCount = getActivePlayerCount(players)
   const [name, setName] = useState("")
   const [error, setError] = useState<string | null>(null)
 

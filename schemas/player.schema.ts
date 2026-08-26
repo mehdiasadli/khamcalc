@@ -10,6 +10,7 @@ export const PlayerNameSchema = z
 export const PlayerSchema = z.object({
   id: z.uuid("Invalid player id"),
   name: PlayerNameSchema,
+  removedAt: z.iso.datetime().nullable().default(null),
 })
 
 export const AddPlayerSchema = z.object({

@@ -32,11 +32,11 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 1.1 | **Skipped questions in audit log** — when host presses Next without answers, record `{ round, question, skipped: true }` (or equivalent flag) so stats don’t undercount | ⬜ |
-| 1.2 | **Soft-delete players** — `removedAt` (or `active: false`) on player; keep in list for historical stats; hide from live scoring unless restored | ⬜ |
-| 1.3 | **Player order in store** — explicit `playerOrder: string[]` or ordered array + `reorderPlayers(from, to)` action (prep for DnD) | ⬜ |
-| 1.4 | **Achievement schema** — `TAchievement` type, game-scoped earned list `{ playerId, type, count, earnedAtRound }` | ⬜ |
-| 1.5 | **Ace detection** — pure fn: player answered **all** questions in a round correctly (no wrong marks, one correct per question they won); increment Ace count on round completion / when derivable | ⬜ |
+| 1.1 | **Skipped questions in audit log** — when host presses Next without answers, record `{ round, question, skipped: true }` (or equivalent flag) so stats don’t undercount | ✅ |
+| 1.2 | **Soft-delete players** — `removedAt` (or `active: false`) on player; keep in list for historical stats; hide from live scoring unless restored | ✅ |
+| 1.3 | **Player order in store** — explicit `playerOrder: string[]` or ordered array + `reorderPlayers(from, to)` action (prep for DnD) | ✅ |
+| 1.4 | **Achievement schema** — `TAchievement` type, game-scoped earned list `{ playerId, type, count, earnedAtRound }` | ✅ |
+| 1.5 | **Ace detection** — pure fn: player answered **all** questions in a round correctly (no wrong marks, one correct per question they won); increment Ace count on round completion / when derivable | ✅ |
 
 **Files (expected):** `schemas/game.schema.ts`, `schemas/player.schema.ts`, `lib/game.ts`, `lib/achievements.ts`, `stores/app.store.ts`
 
@@ -230,3 +230,4 @@ Browse: [skills.sh](https://skills.sh/)
 | Date | Change |
 | ---- | ------ |
 | 2026-08-27 | Initial roadmap from grill-me feedback session |
+| 2026-08-27 | Update 1 complete — skipped questions, soft-delete, player order, Ace achievements |

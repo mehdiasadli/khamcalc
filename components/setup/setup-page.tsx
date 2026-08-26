@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { MIN_PLAYERS } from "@/lib/players"
+import { MIN_PLAYERS, getActivePlayerCount } from "@/lib/players"
 import { useAppStore } from "@/stores"
 import { ArrowRightIcon } from "lucide-react"
 
@@ -25,7 +25,7 @@ export function SetupPage() {
   const enterGame = useAppStore((state) => state.enterGame)
   const [error, setError] = useState<string | null>(null)
 
-  const canStart = players.length >= MIN_PLAYERS
+  const canStart = getActivePlayerCount(players) >= MIN_PLAYERS
   const hasActiveGame = game !== null && game.status !== "finished"
 
   function handleStart() {

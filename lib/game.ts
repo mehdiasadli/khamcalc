@@ -77,7 +77,14 @@ export function questionHasAnswers(
   record: TQuestionRecord | undefined
 ): boolean {
   if (!record) return false
+
+  if (record.skipped) return true
+
   return Boolean(record.correctPlayerId) || record.wrongPlayerIds.length > 0
+}
+
+export function isQuestionSkipped(record: TQuestionRecord | undefined): boolean {
+  return record?.skipped ?? false
 }
 
 export function getLeadingEdge(
@@ -225,6 +232,7 @@ export function createInitialGameState(playerIds: string[]): TGameState {
     furthestQuestion: 1,
     scores: createEmptyScores(playerIds),
     questions: [],
+    achievements: [],
     startedAt: new Date().toISOString(),
     finishedAt: null,
   }
@@ -336,4 +344,16 @@ export function getCurrentQuestionRecord(
 
 export function getPlayerScore(game: TGameState, playerId: string): number {
   return game.scores[playerId] ?? 0
+}
+
+export function createSkippedQuestionRecord(
+  position: TQuestionPosition
+): TQuestionRecord {
+  return {
+    round: position.round,
+    question: position.question,
+    correctPlayerId: null,
+    wrongPlayerIds: [],
+    skipped: true,
+  }
 }

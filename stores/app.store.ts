@@ -10,11 +10,13 @@ import {
   type TGameConfig,
 } from "@/schemas/config.schema"
 import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
+import { recomputeAchievements } from "@/lib/achievements"
 import {
   advanceFurthest,
   areAllPlayersWrong,
   canManualNext,
   createInitialGameState,
+  createSkippedQuestionRecord,
   findQuestionRecord,
   getAdvanceAfterQuestion,
   getNextPosition,
@@ -26,13 +28,21 @@ import {
   resolvePreviousPosition,
   upsertQuestionRecord,
 } from "@/lib/game"
-import { MAX_PLAYERS, MIN_PLAYERS } from "@/lib/players"
+import {
+  getActivePlayerCount,
+  getActivePlayerIds,
+  getActivePlayers,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  reorderPlayerIds,
+} from "@/lib/players"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 export interface TAppState {
   config: TGameConfig
   players: TPlayer[]
+  playerOrder: string[]
   game: TGameState | null
 }
 
@@ -43,6 +53,7 @@ export interface TAppActions {
   addPlayer: (name: string) => TPlayer
   updatePlayer: (id: string, name: string) => void
   removePlayer: (id: string) => void
+  reorderPlayers: (fromIndex: number, toIndex: number) => void
 
   enterGame: () => void
   resetGame: () => void
@@ -66,6 +77,7 @@ export const initialConfig: TGameConfig = {
 export const initialAppState: TAppState = {
   config: initialConfig,
   players: [],
+  playerOrder: [],
   game: null,
 }
 
@@ -86,6 +98,17 @@ function syncScoresWithPlayers(
   return Object.fromEntries(playerIds.map((id) => [id, scores[id] ?? 0]))
 }
 
+function withAchievements(game: TGameState, config: TGameConfig): TGameState {
+  return {
+    ...game,
+    achievements: recomputeAchievements(game, config),
+  }
+}
+
+function getAllPlayerIds(players: TPlayer[]): string[] {
+  return players.map((player) => player.id)
+}
+
 function getQuestionRecordOrDefault(game: TGameState): TQuestionRecord {
   return (
     findQuestionRecord(game.questions, {
@@ -96,6 +119,7 @@ function getQuestionRecordOrDefault(game: TGameState): TQuestionRecord {
       question: game.currentQuestion,
       correctPlayerId: null,
       wrongPlayerIds: [],
+      skipped: false,
     }
   )
 }
@@ -105,7 +129,7 @@ function ensureUniquePlayerName(
   name: string,
   excludeId?: string
 ): void {
-  const duplicate = players.some(
+  const duplicate = getActivePlayers(players).some(
     (player) =>
       player.name.toLowerCase() === name.toLowerCase() &&
       player.id !== excludeId
@@ -138,27 +162,32 @@ export const useAppStore = create<TAppStore>()(
         const parsed = AddPlayerSchema.parse({ name })
         ensureUniquePlayerName(get().players, parsed.name)
 
-        if (get().players.length >= MAX_PLAYERS) {
+        if (getActivePlayerCount(get().players) >= MAX_PLAYERS) {
           throw new Error(`Maximum ${MAX_PLAYERS} players allowed`)
         }
 
         const player: TPlayer = {
           id: crypto.randomUUID(),
           name: parsed.name,
+          removedAt: null,
         }
 
         set((state) => {
           const players = [...state.players, player]
+          const playerOrder = [...state.playerOrder, player.id]
           const game = state.game
-            ? {
-                ...state.game,
-                scores: syncScoresWithPlayers(state.game.scores, [
-                  ...players.map((item) => item.id),
-                ]),
-              }
+            ? withAchievements(
+                {
+                  ...state.game,
+                  scores: syncScoresWithPlayers(state.game.scores, [
+                    ...getAllPlayerIds(players),
+                  ]),
+                },
+                state.config
+              )
             : null
 
-          return { players, game }
+          return { players, playerOrder, game }
         })
 
         return player
@@ -179,41 +208,57 @@ export const useAppStore = create<TAppStore>()(
         const parsed = RemovePlayerSchema.parse({ id })
 
         set((state) => {
-          const players = state.players.filter(
-            (player) => player.id !== parsed.id
+          const removedAt = new Date().toISOString()
+          const players = state.players.map((player) =>
+            player.id === parsed.id ? { ...player, removedAt } : player
+          )
+          const playerOrder = state.playerOrder.filter(
+            (playerId) => playerId !== parsed.id
           )
 
           if (!state.game) {
-            return { players }
+            return { players, playerOrder }
           }
-
-          const scores = { ...state.game.scores }
-          delete scores[parsed.id]
 
           return {
             players,
-            game: {
-              ...state.game,
-              scores: syncScoresWithPlayers(
-                scores,
-                players.map((player) => player.id)
-              ),
-            },
+            playerOrder,
+            game: withAchievements(
+              {
+                ...state.game,
+                scores: syncScoresWithPlayers(
+                  state.game.scores,
+                  getAllPlayerIds(players)
+                ),
+              },
+              state.config
+            ),
           }
         })
       },
 
+      reorderPlayers: (fromIndex, toIndex) => {
+        const { players, playerOrder } = get()
+        const activeIds = getActivePlayerIds(players, playerOrder)
+
+        set({
+          playerOrder: reorderPlayerIds(activeIds, fromIndex, toIndex),
+        })
+      },
+
       enterGame: () => {
-        const { game, players } = get()
+        const { game, players, playerOrder } = get()
 
         if (game) return
 
-        if (players.length < MIN_PLAYERS) {
+        const activePlayerIds = getActivePlayerIds(players, playerOrder)
+
+        if (activePlayerIds.length < MIN_PLAYERS) {
           throw new Error(`Add at least ${MIN_PLAYERS} player before starting`)
         }
 
         set({
-          game: createInitialGameState(players.map((player) => player.id)),
+          game: createInitialGameState(activePlayerIds),
         })
       },
 
@@ -222,23 +267,28 @@ export const useAppStore = create<TAppStore>()(
       },
 
       finishGame: () => {
-        const { game } = get()
+        const { game, config } = get()
         assertGame(game)
 
         set({
-          game: {
-            ...game,
-            status: "finished",
-            finishedAt: new Date().toISOString(),
-          },
+          game: withAchievements(
+            {
+              ...game,
+              status: "finished",
+              finishedAt: new Date().toISOString(),
+            },
+            config
+          ),
         })
       },
 
       markWrong: (playerId) => {
-        const { game, players, config } = get()
+        const { game, players, playerOrder, config } = get()
         assertGame(game)
 
-        if (!players.some((player) => player.id === playerId)) {
+        const activePlayers = getActivePlayers(players)
+
+        if (!activePlayers.some((player) => player.id === playerId)) {
           throw new Error("Player not found")
         }
 
@@ -250,17 +300,16 @@ export const useAppStore = create<TAppStore>()(
 
         const wasAddingWrong = !current.wrongPlayerIds.includes(playerId)
 
-        const wrongPlayerIds = wasAddingWrong
-          ? [...current.wrongPlayerIds, playerId]
-          : current.wrongPlayerIds.filter((id) => id !== playerId)
-
         const record: TQuestionRecord = {
           ...current,
-          wrongPlayerIds,
+          skipped: false,
+          wrongPlayerIds: wasAddingWrong
+            ? [...current.wrongPlayerIds, playerId]
+            : current.wrongPlayerIds.filter((id) => id !== playerId),
         }
 
         const questions = upsertQuestionRecord(game.questions, record)
-        const playerIds = players.map((player) => player.id)
+        const activePlayerIds = getActivePlayerIds(players, playerOrder)
 
         let nextGame: TGameState = {
           ...game,
@@ -270,7 +319,7 @@ export const useAppStore = create<TAppStore>()(
         if (
           wasAddingWrong &&
           isAtLeadingEdge(game) &&
-          areAllPlayersWrong(record, playerIds)
+          areAllPlayersWrong(record, activePlayerIds)
         ) {
           nextGame = {
             ...nextGame,
@@ -278,14 +327,16 @@ export const useAppStore = create<TAppStore>()(
           }
         }
 
-        set({ game: nextGame })
+        set({ game: withAchievements(nextGame, config) })
       },
 
       markCorrect: (playerId) => {
         const { game, players, config } = get()
         assertGame(game)
 
-        if (!players.some((player) => player.id === playerId)) {
+        const activePlayers = getActivePlayers(players)
+
+        if (!activePlayers.some((player) => player.id === playerId)) {
           throw new Error("Player not found")
         }
 
@@ -298,13 +349,14 @@ export const useAppStore = create<TAppStore>()(
 
         const record: TQuestionRecord = {
           ...current,
+          skipped: false,
           correctPlayerId: playerId,
           wrongPlayerIds: current.wrongPlayerIds,
         }
 
         const questions = upsertQuestionRecord(game.questions, record)
-        const playerIds = players.map((player) => player.id)
-        const scores = recalculateScores(questions, playerIds)
+        const allPlayerIds = getAllPlayerIds(players)
+        const scores = recalculateScores(questions, allPlayerIds)
 
         let nextGame: TGameState = {
           ...game,
@@ -319,7 +371,7 @@ export const useAppStore = create<TAppStore>()(
           }
         }
 
-        set({ game: nextGame })
+        set({ game: withAchievements(nextGame, config) })
       },
 
       prevQuestion: () => {
@@ -372,24 +424,43 @@ export const useAppStore = create<TAppStore>()(
 
         if (!nextPosition) return
 
+        const currentRecord = findQuestionRecord(game.questions, {
+          round: game.currentRound,
+          question: game.currentQuestion,
+        })
+
+        const questions = questionHasAnswers(currentRecord)
+          ? game.questions
+          : upsertQuestionRecord(
+              game.questions,
+              createSkippedQuestionRecord({
+                round: game.currentRound,
+                question: game.currentQuestion,
+              })
+            )
+
         const furthest = advanceFurthest(
-          game,
+          { ...game, questions },
           nextPosition.round,
           nextPosition.question
         )
 
         set({
-          game: {
-            ...game,
-            currentRound: nextPosition.round,
-            currentQuestion: nextPosition.question,
-            ...furthest,
-          },
+          game: withAchievements(
+            {
+              ...game,
+              questions,
+              currentRound: nextPosition.round,
+              currentQuestion: nextPosition.question,
+              ...furthest,
+            },
+            config
+          ),
         })
       },
 
       undoQuestion: () => {
-        const { game, players } = get()
+        const { game, players, config } = get()
         assertGame(game)
 
         const record = findQuestionRecord(game.questions, {
@@ -405,19 +476,22 @@ export const useAppStore = create<TAppStore>()(
           round: game.currentRound,
           question: game.currentQuestion,
         })
-        const playerIds = players.map((player) => player.id)
+        const allPlayerIds = getAllPlayerIds(players)
 
         set({
-          game: {
-            ...game,
-            questions,
-            scores: recalculateScores(questions, playerIds),
-          },
+          game: withAchievements(
+            {
+              ...game,
+              questions,
+              scores: recalculateScores(questions, allPlayerIds),
+            },
+            config
+          ),
         })
       },
 
       undoCorrect: (playerId) => {
-        const { game, players } = get()
+        const { game, players, config } = get()
         assertGame(game)
 
         const current = getQuestionRecordOrDefault(game)
@@ -429,17 +503,21 @@ export const useAppStore = create<TAppStore>()(
         const record: TQuestionRecord = {
           ...current,
           correctPlayerId: null,
+          skipped: false,
         }
 
         const questions = upsertQuestionRecord(game.questions, record)
-        const playerIds = players.map((player) => player.id)
+        const allPlayerIds = getAllPlayerIds(players)
 
         set({
-          game: {
-            ...game,
-            questions,
-            scores: recalculateScores(questions, playerIds),
-          },
+          game: withAchievements(
+            {
+              ...game,
+              questions,
+              scores: recalculateScores(questions, allPlayerIds),
+            },
+            config
+          ),
         })
       },
     }),

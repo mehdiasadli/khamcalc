@@ -21,11 +21,13 @@ import {
 } from "@/components/ui/empty"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
 import { SetupPlayerItem } from "@/components/setup/setup-player-item"
+import { getActivePlayers } from "@/lib/players"
 import { useAppStore } from "@/stores"
 import { UsersIcon } from "lucide-react"
 
 export function SetupPlayerList() {
-  const players = useAppStore((state) => state.players)
+  const allPlayers = useAppStore((state) => state.players)
+  const players = getActivePlayers(allPlayers)
   const updatePlayer = useAppStore((state) => state.updatePlayer)
   const removePlayer = useAppStore((state) => state.removePlayer)
 
@@ -102,7 +104,8 @@ export function SetupPlayerList() {
             <AlertDialogTitle>Remove player?</AlertDialogTitle>
             <AlertDialogDescription>
               <span className="text-foreground">{removePlayerTarget?.name}</span>{" "}
-              will be removed from the player list.
+              will be removed from the player list. You can reuse the name for a
+              new player.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

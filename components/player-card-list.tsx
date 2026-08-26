@@ -17,6 +17,7 @@ import {
   type PlayerCardStatus,
 } from "@/components/player-card"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
+import { getActivePlayers } from "@/lib/players"
 import {
   useAppStore,
   useCurrentQuestionRecord,
@@ -64,7 +65,8 @@ function useRankedGamePlayers() {
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
-  const players = useAppStore((state) => state.players)
+  const allPlayers = useAppStore((state) => state.players)
+  const activePlayers = getActivePlayers(allPlayers)
   const rankedPlayers = useRankedGamePlayers()
   const markCorrect = useAppStore((state) => state.markCorrect)
   const markWrong = useAppStore((state) => state.markWrong)
@@ -75,7 +77,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
   const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog>(null)
 
-  const renamePlayer = players.find((player) => player.id === renamePlayerId)
+  const renamePlayer = activePlayers.find((player) => player.id === renamePlayerId)
   const confirmTarget = rankedPlayers.find(
     (player) => player.id === confirmDialog?.playerId
   )
@@ -170,7 +172,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
         }}
         playerId={renamePlayerId}
         playerName={renamePlayer?.name ?? ""}
-        existingNames={players}
+        existingNames={activePlayers}
         onConfirm={handleRename}
       />
 
@@ -205,7 +207,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
               {confirmDialog?.type === "remove" ? (
                 <>
                   <span className="text-foreground">{confirmTarget?.name}</span>{" "}
-                  will be removed from the player list.
+                  will be removed from scoring. Their stats stay in this game.
                 </>
               ) : null}
             </AlertDialogDescription>
