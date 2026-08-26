@@ -4,7 +4,9 @@ import { useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 
 import {
+  canGoPrevious,
   getCurrentQuestionRecord,
+  questionHasAnswers,
   shouldShowFinish,
 } from "@/lib/game"
 import { useAppStore } from "@/stores/app.store"
@@ -35,6 +37,25 @@ export function useShouldShowFinish() {
       config
     )
   }, [game, config])
+}
+
+export function useCanGoPrevious() {
+  const game = useAppStore((state) => state.game)
+  const config = useAppStore((state) => state.config)
+
+  return useMemo(() => {
+    if (!game) return false
+    return canGoPrevious(game, config)
+  }, [game, config])
+}
+
+export function useCanUndoQuestion() {
+  const game = useAppStore((state) => state.game)
+
+  return useMemo(() => {
+    if (!game) return false
+    return questionHasAnswers(getCurrentQuestionRecord(game))
+  }, [game])
 }
 
 export function useQuestionDisabledPlayerIds() {

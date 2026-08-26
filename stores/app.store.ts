@@ -20,8 +20,9 @@ import {
   getNextPosition,
   isAtLeadingEdge,
   isPlayerDisabledForQuestion,
+  questionHasAnswers,
   recalculateScores,
-  removeQuestionsForRound,
+  removeQuestionRecord,
   resolvePreviousPosition,
   upsertQuestionRecord,
 } from "@/lib/game"
@@ -51,7 +52,7 @@ export interface TAppActions {
   markCorrect: (playerId: string) => void
   prevQuestion: () => void
   nextQuestion: () => void
-  undoRound: () => void
+  undoQuestion: () => void
   undoCorrect: (playerId: string) => void
 }
 
@@ -387,22 +388,28 @@ export const useAppStore = create<TAppStore>()(
         })
       },
 
-      undoRound: () => {
+      undoQuestion: () => {
         const { game, players } = get()
         assertGame(game)
 
-        const questions = removeQuestionsForRound(
-          game.questions,
-          game.currentRound
-        )
+        const record = findQuestionRecord(game.questions, {
+          round: game.currentRound,
+          question: game.currentQuestion,
+        })
+
+        if (!questionHasAnswers(record)) {
+          throw new Error("No answers on this question")
+        }
+
+        const questions = removeQuestionRecord(game.questions, {
+          round: game.currentRound,
+          question: game.currentQuestion,
+        })
         const playerIds = players.map((player) => player.id)
 
         set({
           game: {
             ...game,
-            currentQuestion: 1,
-            furthestRound: game.currentRound,
-            furthestQuestion: 1,
             questions,
             scores: recalculateScores(questions, playerIds),
           },

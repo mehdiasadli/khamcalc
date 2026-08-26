@@ -61,6 +61,25 @@ export function removeQuestionsForRound(
   return questions.filter((record) => record.round !== round)
 }
 
+export function removeQuestionRecord(
+  questions: TQuestionRecord[],
+  position: TQuestionPosition
+): TQuestionRecord[] {
+  return questions.filter(
+    (record) =>
+      !(
+        record.round === position.round && record.question === position.question
+      )
+  )
+}
+
+export function questionHasAnswers(
+  record: TQuestionRecord | undefined
+): boolean {
+  if (!record) return false
+  return Boolean(record.correctPlayerId) || record.wrongPlayerIds.length > 0
+}
+
 export function getLeadingEdge(
   questions: TQuestionRecord[],
   fallback: TQuestionPosition
@@ -287,6 +306,22 @@ export function isAtLeadingEdge(game: TGameState): boolean {
   return (
     game.currentRound === game.furthestRound &&
     game.currentQuestion === game.furthestQuestion
+  )
+}
+
+export function canGoPrevious(
+  game: TGameState,
+  config: TGameConfig
+): boolean {
+  return (
+    resolvePreviousPosition(
+      {
+        round: game.currentRound,
+        question: game.currentQuestion,
+      },
+      config,
+      game.questions
+    ) !== null
   )
 }
 
