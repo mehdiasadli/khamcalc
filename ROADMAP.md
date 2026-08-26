@@ -50,15 +50,15 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 2.1 | **`lib/analytics.ts`** — all stats derived from `game.questions`, `players`, `scores`, `config` | ⬜ |
-| 2.2 | **Game overview metrics** — questions played, correct/incorrect totals, avg wrong per question, elapsed duration, progress vs limits, preset name | ⬜ |
-| 2.3 | **Per-player stats** — score, rank, correct/wrong counts, accuracy, points per round, participation rate | ⬜ |
-| 2.4 | **Extended stats** (from available data) — e.g. first correct in round, wrong-before-correct ratio, rounds led, idle question count, comeback delta (score change last 2 rounds) | ⬜ |
-| 2.5 | **Round breakdown** — cumulative score per player at end of each round | ⬜ |
-| 2.6 | **Question log** — ordered list of round:question with correct player + wrong players + skipped flag | ⬜ |
-| 2.7 | **Leaderboard timeline** — who held #1 after each round | ⬜ |
-| 2.8 | **Streak stats** — longest consecutive correct streak per player | ⬜ |
-| 2.9 | **`formatGameSummary()`** — plain-text block for clipboard / share | ⬜ |
+| 2.1 | **`lib/analytics.ts`** — all stats derived from `game.questions`, `players`, `scores`, `config` | ✅ |
+| 2.2 | **Game overview metrics** — questions played, correct/incorrect totals, avg wrong per question, elapsed duration, progress vs limits, preset name | ✅ |
+| 2.3 | **Per-player stats** — score, rank, correct/wrong counts, accuracy, points per round, participation rate | ✅ |
+| 2.4 | **Extended stats** (from available data) — e.g. first correct in round, wrong-before-correct ratio, rounds led, idle question count, comeback delta (score change last 2 rounds) | ✅ |
+| 2.5 | **Round breakdown** — cumulative score per player at end of each round | ✅ |
+| 2.6 | **Question log** — ordered list of round:question with correct player + wrong players + skipped flag | ✅ |
+| 2.7 | **Leaderboard timeline** — who held #1 after each round | ✅ |
+| 2.8 | **Streak stats** — longest consecutive correct streak per player | ✅ |
+| 2.9 | **`formatGameSummary()`** — plain-text block for clipboard / share | ✅ |
 
 **Files (expected):** `lib/analytics.ts`, unit tests optional later
 
@@ -231,3 +231,4 @@ Browse: [skills.sh](https://skills.sh/)
 | ---- | ------ |
 | 2026-08-27 | Initial roadmap from grill-me feedback session |
 | 2026-08-27 | Update 1 complete — skipped questions, soft-delete, player order, Ace achievements |
+| 2026-08-27 | Update 2 complete — analytics engine and formatGameSummary |

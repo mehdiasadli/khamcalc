@@ -1,4 +1,5 @@
 import type { TGameConfig } from "@/schemas/config.schema"
+import { configPresets } from "@/lib/config-presets"
 
 export function configMatches(a: TGameConfig, b: TGameConfig): boolean {
   return (
@@ -9,4 +10,14 @@ export function configMatches(a: TGameConfig, b: TGameConfig): boolean {
 
 export function formatConfigValue(value: number | null): string {
   return value === null ? "No limit" : String(value)
+}
+
+export function detectPresetName(config: TGameConfig): string | null {
+  for (const preset of Object.values(configPresets)) {
+    if (configMatches(config, preset.config)) {
+      return preset.name
+    }
+  }
+
+  return null
 }
