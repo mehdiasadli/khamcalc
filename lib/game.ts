@@ -224,6 +224,72 @@ export function isPlayerDisabledForQuestion(
   return record?.wrongPlayerIds.includes(playerId) ?? false
 }
 
+export function areAllPlayersWrong(
+  record: TQuestionRecord,
+  playerIds: string[]
+): boolean {
+  if (playerIds.length === 0) return false
+  if (record.correctPlayerId) return false
+
+  return playerIds.every((id) => record.wrongPlayerIds.includes(id))
+}
+
+export function advanceFurthest(
+  game: TGameState,
+  round: number,
+  question: number
+): Pick<TGameState, "furthestRound" | "furthestQuestion"> {
+  if (round > game.furthestRound) {
+    return { furthestRound: round, furthestQuestion: question }
+  }
+
+  if (round === game.furthestRound && question > game.furthestQuestion) {
+    return { furthestRound: round, furthestQuestion: question }
+  }
+
+  return {
+    furthestRound: game.furthestRound,
+    furthestQuestion: game.furthestQuestion,
+  }
+}
+
+export function getAdvanceAfterQuestion(
+  game: TGameState,
+  config: TGameConfig
+): Pick<
+  TGameState,
+  "currentRound" | "currentQuestion" | "furthestRound" | "furthestQuestion"
+> {
+  const nextPosition = getNextPosition(
+    {
+      round: game.currentRound,
+      question: game.currentQuestion,
+    },
+    config
+  )
+
+  if (nextPosition) {
+    return {
+      currentRound: nextPosition.round,
+      currentQuestion: nextPosition.question,
+      ...advanceFurthest(game, nextPosition.round, nextPosition.question),
+    }
+  }
+
+  return {
+    currentRound: game.currentRound,
+    currentQuestion: game.currentQuestion,
+    ...advanceFurthest(game, game.currentRound, game.currentQuestion),
+  }
+}
+
+export function isAtLeadingEdge(game: TGameState): boolean {
+  return (
+    game.currentRound === game.furthestRound &&
+    game.currentQuestion === game.furthestQuestion
+  )
+}
+
 export function getCurrentQuestionRecord(
   game: TGameState
 ): TQuestionRecord | undefined {

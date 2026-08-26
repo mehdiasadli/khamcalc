@@ -11,19 +11,21 @@ import {
 } from "@/schemas/config.schema"
 import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import {
+  advanceFurthest,
+  areAllPlayersWrong,
   canManualNext,
   createInitialGameState,
   findQuestionRecord,
-  getCurrentQuestionRecord,
+  getAdvanceAfterQuestion,
   getNextPosition,
-  getQuestionDisabledPlayerIds,
+  isAtLeadingEdge,
   isPlayerDisabledForQuestion,
   recalculateScores,
   removeQuestionsForRound,
   resolvePreviousPosition,
-  shouldShowFinish,
   upsertQuestionRecord,
 } from "@/lib/game"
+import { MAX_PLAYERS, MIN_PLAYERS } from "@/lib/players"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
@@ -50,6 +52,7 @@ export interface TAppActions {
   prevQuestion: () => void
   nextQuestion: () => void
   undoRound: () => void
+  undoCorrect: (playerId: string) => void
 }
 
 export interface TAppStore extends TAppState, TAppActions {}
@@ -80,32 +83,6 @@ function syncScoresWithPlayers(
   playerIds: string[]
 ): Record<string, number> {
   return Object.fromEntries(playerIds.map((id) => [id, scores[id] ?? 0]))
-}
-
-function isAtLeadingEdge(game: TGameState): boolean {
-  return (
-    game.currentRound === game.furthestRound &&
-    game.currentQuestion === game.furthestQuestion
-  )
-}
-
-function advanceFurthest(
-  game: TGameState,
-  round: number,
-  question: number
-): Pick<TGameState, "furthestRound" | "furthestQuestion"> {
-  if (round > game.furthestRound) {
-    return { furthestRound: round, furthestQuestion: question }
-  }
-
-  if (round === game.furthestRound && question > game.furthestQuestion) {
-    return { furthestRound: round, furthestQuestion: question }
-  }
-
-  return {
-    furthestRound: game.furthestRound,
-    furthestQuestion: game.furthestQuestion,
-  }
 }
 
 function getQuestionRecordOrDefault(game: TGameState): TQuestionRecord {
@@ -159,6 +136,10 @@ export const useAppStore = create<TAppStore>()(
       addPlayer: (name) => {
         const parsed = AddPlayerSchema.parse({ name })
         ensureUniquePlayerName(get().players, parsed.name)
+
+        if (get().players.length >= MAX_PLAYERS) {
+          throw new Error(`Maximum ${MAX_PLAYERS} players allowed`)
+        }
 
         const player: TPlayer = {
           id: crypto.randomUUID(),
@@ -226,8 +207,8 @@ export const useAppStore = create<TAppStore>()(
 
         if (game) return
 
-        if (players.length === 0) {
-          throw new Error("Add at least one player before starting")
+        if (players.length < MIN_PLAYERS) {
+          throw new Error(`Add at least ${MIN_PLAYERS} player before starting`)
         }
 
         set({
@@ -253,7 +234,7 @@ export const useAppStore = create<TAppStore>()(
       },
 
       markWrong: (playerId) => {
-        const { game, players } = get()
+        const { game, players, config } = get()
         assertGame(game)
 
         if (!players.some((player) => player.id === playerId)) {
@@ -266,21 +247,37 @@ export const useAppStore = create<TAppStore>()(
           throw new Error("Correct player cannot be marked wrong")
         }
 
-        const wrongPlayerIds = current.wrongPlayerIds.includes(playerId)
-          ? current.wrongPlayerIds.filter((id) => id !== playerId)
-          : [...current.wrongPlayerIds, playerId]
+        const wasAddingWrong = !current.wrongPlayerIds.includes(playerId)
+
+        const wrongPlayerIds = wasAddingWrong
+          ? [...current.wrongPlayerIds, playerId]
+          : current.wrongPlayerIds.filter((id) => id !== playerId)
 
         const record: TQuestionRecord = {
           ...current,
           wrongPlayerIds,
         }
 
-        set({
-          game: {
-            ...game,
-            questions: upsertQuestionRecord(game.questions, record),
-          },
-        })
+        const questions = upsertQuestionRecord(game.questions, record)
+        const playerIds = players.map((player) => player.id)
+
+        let nextGame: TGameState = {
+          ...game,
+          questions,
+        }
+
+        if (
+          wasAddingWrong &&
+          isAtLeadingEdge(game) &&
+          areAllPlayersWrong(record, playerIds)
+        ) {
+          nextGame = {
+            ...nextGame,
+            ...getAdvanceAfterQuestion(game, config),
+          }
+        }
+
+        set({ game: nextGame })
       },
 
       markCorrect: (playerId) => {
@@ -315,32 +312,9 @@ export const useAppStore = create<TAppStore>()(
         }
 
         if (atLeadingEdge) {
-          const nextPosition = getNextPosition(
-            {
-              round: game.currentRound,
-              question: game.currentQuestion,
-            },
-            config
-          )
-
-          if (nextPosition) {
-            const furthest = advanceFurthest(
-              game,
-              nextPosition.round,
-              nextPosition.question
-            )
-
-            nextGame = {
-              ...nextGame,
-              currentRound: nextPosition.round,
-              currentQuestion: nextPosition.question,
-              ...furthest,
-            }
-          } else {
-            nextGame = {
-              ...nextGame,
-              ...advanceFurthest(game, game.currentRound, game.currentQuestion),
-            }
+          nextGame = {
+            ...nextGame,
+            ...getAdvanceAfterQuestion(game, config),
           }
         }
 
@@ -434,52 +408,34 @@ export const useAppStore = create<TAppStore>()(
           },
         })
       },
+
+      undoCorrect: (playerId) => {
+        const { game, players } = get()
+        assertGame(game)
+
+        const current = getQuestionRecordOrDefault(game)
+
+        if (current.correctPlayerId !== playerId) {
+          throw new Error("Player is not marked correct on this question")
+        }
+
+        const record: TQuestionRecord = {
+          ...current,
+          correctPlayerId: null,
+        }
+
+        const questions = upsertQuestionRecord(game.questions, record)
+        const playerIds = players.map((player) => player.id)
+
+        set({
+          game: {
+            ...game,
+            questions,
+            scores: recalculateScores(questions, playerIds),
+          },
+        })
+      },
     }),
     { name: "khamcalc" }
   )
 )
-
-export function useCurrentQuestionRecord() {
-  return useAppStore((state) =>
-    state.game ? getCurrentQuestionRecord(state.game) : undefined
-  )
-}
-
-export function useShouldShowFinish() {
-  return useAppStore((state) => {
-    if (!state.game) return false
-
-    return shouldShowFinish(
-      {
-        round: state.game.currentRound,
-        question: state.game.currentQuestion,
-      },
-      state.config
-    )
-  })
-}
-
-export function useQuestionDisabledPlayerIds() {
-  return useAppStore((state) => {
-    if (!state.game) return []
-
-    const record = getCurrentQuestionRecord(state.game)
-    return getQuestionDisabledPlayerIds(record)
-  })
-}
-
-export function usePlayerScores() {
-  return useAppStore((state) => {
-    if (!state.game) {
-      return state.players.map((player) => ({
-        ...player,
-        score: 0,
-      }))
-    }
-
-    return state.players.map((player) => ({
-      ...player,
-      score: state.game?.scores[player.id] ?? 0,
-    }))
-  })
-}
