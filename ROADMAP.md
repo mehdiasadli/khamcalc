@@ -90,13 +90,13 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 4.1 | **Install shadcn `chart`** (+ recharts peer) | ⬜ |
-| 4.2 | **Bar chart** — e.g. per-player correct vs wrong, or points per round | ⬜ |
-| 4.3 | **Line chart** — round-by-round cumulative score; **multi-select players** (toggle chips), **default all selected** | ⬜ |
-| 4.4 | **Round breakdown table** in Overview | ⬜ |
-| 4.5 | **Question log** — expandable rows in Overview or Players | ⬜ |
-| 4.6 | **Leaderboard timeline** — compact vertical list | ⬜ |
-| 4.7 | **Streak display** — in Players tab | ⬜ |
+| 4.1 | **Install shadcn `chart`** (+ recharts peer) | ✅ |
+| 4.2 | **Bar chart** — e.g. per-player correct vs wrong, or points per round | ✅ |
+| 4.3 | **Line chart** — round-by-round cumulative score; **multi-select players** (toggle chips), **default all selected** | ✅ |
+| 4.4 | **Round breakdown table** in Overview | ✅ |
+| 4.5 | **Question log** — expandable rows in Overview or Players | ✅ |
+| 4.6 | **Leaderboard timeline** — compact vertical list | ✅ |
+| 4.7 | **Streak display** — in Players tab | ✅ |
 
 **Skill:** local `shadcn` skill + `bunx shadcn@latest add chart`
 
@@ -233,3 +233,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 1 complete — skipped questions, soft-delete, player order, Ace achievements |
 | 2026-08-27 | Update 2 complete — analytics engine and formatGameSummary |
 | 2026-08-27 | Update 3 complete — stats page shell with nuqs tabs |
+| 2026-08-27 | Update 4 complete — shadcn charts and enhanced stats views |

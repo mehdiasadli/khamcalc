@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 interface StatsMetricCardProps {
@@ -28,30 +22,6 @@ export function StatsMetricCard({
         </p>
         <p className="font-mono text-2xl leading-none tabular-nums">{value}</p>
         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
-      </CardContent>
-    </Card>
-  )
-}
-
-interface StatsChartPlaceholderProps {
-  title: string
-  description: string
-}
-
-export function StatsChartPlaceholder({
-  title,
-  description,
-}: StatsChartPlaceholderProps) {
-  return (
-    <Card size="sm" className="ring-foreground/5">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex min-h-40 items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 px-4 text-center text-sm text-muted-foreground">
-          Charts arrive in the next update
-        </div>
       </CardContent>
     </Card>
   )

@@ -3,6 +3,8 @@
 import type { TGameAnalytics } from "@/lib/analytics"
 import { formatDecimal, formatPercent } from "@/lib/stats-format"
 
+import { StatsStreakChart } from "@/components/stats/stats-streak-chart"
+
 import {
   Card,
   CardContent,
@@ -36,6 +38,8 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      <StatsStreakChart analytics={analytics} />
+
       {players.map((player) => {
         const roundPoints = Object.entries(player.pointsPerRound)
           .filter(([, points]) => points > 0)
