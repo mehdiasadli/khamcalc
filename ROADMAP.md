@@ -173,10 +173,10 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 10.1 | **Per-route metadata** — `/`, `/game`, `/stats` titles + descriptions | ⬜ |
-| 10.2 | **Open Graph + Twitter cards** — share previews when links posted | ⬜ |
-| 10.3 | **Canonical URLs, theme-color meta** | ⬜ |
-| 10.4 | **Icons wired for SEO + PWA** — same asset set as Update 9 | ⬜ |
+| 10.1 | **Per-route metadata** — `/`, `/game`, `/stats` titles + descriptions | ✅ |
+| 10.2 | **Open Graph + Twitter cards** — share previews when links posted | ✅ |
+| 10.3 | **Canonical URLs, theme-color meta** | ✅ |
+| 10.4 | **Icons wired for SEO + PWA** — same asset set as Update 9 | ✅ |
 
 ---
 
@@ -208,7 +208,7 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
          Update 11 (haptics/audio)
 ```
 
-**Recommended next step:** Update 10 (SEO & page metadata) — reuse the PWA icon set.
+**Recommended next step:** Update 11 (haptics & audio).
 
 ---
 
@@ -239,3 +239,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 7 complete — Ace badge UI on player cards |
 | 2026-08-27 | Update 8 complete — drag-to-reorder players on game page |
 | 2026-08-27 | Update 9 complete — PWA manifest, icons, Serwist SW, install prompt |
+| 2026-08-27 | Update 10 complete — per-route SEO, OG/Twitter, canonical URLs |
