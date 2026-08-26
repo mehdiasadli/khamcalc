@@ -1,10 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { useMemo } from "react"
 import { parseAsStringLiteral, useQueryState } from "nuqs"
 
 import { StatsOverviewTab } from "@/components/stats/stats-overview-tab"
 import { StatsPlayersTab } from "@/components/stats/stats-players-tab"
+import { StatsShareActions } from "@/components/stats/stats-share-actions"
+import { formatGameSummary } from "@/lib/analytics"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -29,9 +32,16 @@ const statsTabParser = parseAsStringLiteral(["overview", "players"]).withDefault
 
 export function StatsPageContent() {
   const game = useAppStore((state) => state.game)
+  const config = useAppStore((state) => state.config)
   const players = useAppStore((state) => state.players)
   const analytics = useGameAnalytics()
   const [tab, setTab] = useQueryState("tab", statsTabParser)
+
+  const summary = useMemo(() => {
+    if (!game) return ""
+
+    return formatGameSummary({ game, config, players })
+  }, [game, config, players])
 
   if (!game || !analytics) {
     return (
@@ -78,6 +88,7 @@ export function StatsPageContent() {
               <Badge variant="secondary">{isFinished ? "Finished" : "Live"}</Badge>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <StatsShareActions summary={summary} />
               <Link
                 href="/game"
                 aria-label="Back to game"

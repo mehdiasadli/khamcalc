@@ -106,9 +106,9 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 5.1 | **Copy summary** button on stats page — uses `formatGameSummary()` + `navigator.clipboard` | ⬜ |
-| 5.2 | **Share bottom sheet** — shadcn `Sheet` with targets: WhatsApp, Telegram, Discord, X (Twitter), + Copy | ⬜ |
-| 5.3 | **Share URLs** — `https://wa.me/?text=`, `https://t.me/share/url?url=&text=`, etc. | ⬜ |
+| 5.1 | **Copy summary** button on stats page — uses `formatGameSummary()` + `navigator.clipboard` | ✅ |
+| 5.2 | **Share bottom sheet** — shadcn `Sheet` with targets: WhatsApp, Telegram, Discord, X (Twitter), + Copy | ✅ |
+| 5.3 | **Share URLs** — `https://wa.me/?text=`, `https://t.me/share/url?url=&text=`, etc. | ✅ |
 
 ---
 
@@ -234,3 +234,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 2 complete — analytics engine and formatGameSummary |
 | 2026-08-27 | Update 3 complete — stats page shell with nuqs tabs |
 | 2026-08-27 | Update 4 complete — shadcn charts and enhanced stats views |
+| 2026-08-27 | Update 5 complete — copy summary and share sheet |
