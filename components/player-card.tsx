@@ -25,6 +25,8 @@ export interface PlayerCardProps {
   status?: PlayerCardStatus
   isLeader?: boolean
   achievements?: TGameAchievement[]
+  dragHandle?: React.ReactNode
+  isDragging?: boolean
   onCorrect?: () => void
   onIncorrect?: () => void
   onRename?: () => void
@@ -58,6 +60,8 @@ export function PlayerCard({
   status = "idle",
   isLeader = false,
   achievements = [],
+  dragHandle,
+  isDragging = false,
   onCorrect,
   onIncorrect,
   onRename,
@@ -73,11 +77,14 @@ export function PlayerCard({
       className={cn(
         "transition-colors",
         statusStyles[status],
-        isLeader && status === "idle" && "ring-primary/25"
+        isLeader && status === "idle" && "ring-primary/25",
+        isDragging && "opacity-60 shadow-md"
       )}
     >
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
+          {dragHandle}
+
           {rank !== undefined ? (
             <span
               className={cn(

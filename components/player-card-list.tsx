@@ -1,5 +1,19 @@
 "use client"
 
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
 import { useMemo, useState } from "react"
 
 import {
@@ -17,6 +31,7 @@ import {
   type PlayerCardStatus,
 } from "@/components/player-card"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
+import { SortablePlayerCard } from "@/components/game/sortable-player-card"
 import { getPlayerAchievements } from "@/lib/achievements"
 import { getActivePlayers } from "@/lib/players"
 import {
@@ -76,6 +91,23 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
   const undoCorrect = useAppStore((state) => state.undoCorrect)
   const updatePlayer = useAppStore((state) => state.updatePlayer)
   const removePlayer = useAppStore((state) => state.removePlayer)
+  const reorderPlayers = useAppStore((state) => state.reorderPlayers)
+
+  const playerIds = useMemo(
+    () => rankedPlayers.map((player) => player.id),
+    [rankedPlayers]
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog>(null)
@@ -133,41 +165,80 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
     handleStoreAction(() => updatePlayer(playerId, name))
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    const fromIndex = playerIds.indexOf(String(active.id))
+    const toIndex = playerIds.indexOf(String(over.id))
+
+    if (fromIndex === -1 || toIndex === -1) {
+      return
+    }
+
+    reorderPlayers(fromIndex, toIndex)
+  }
+
+  function getPlayerCardProps(player: (typeof rankedPlayers)[number]) {
+    return {
+      name: player.name,
+      score: player.score,
+      rank: player.rank,
+      status: player.status,
+      isLeader: player.isLeader,
+      achievements: player.achievements,
+      onCorrect: disabled
+        ? undefined
+        : () => handleCorrectClick(player.id, player.status),
+      onIncorrect: disabled
+        ? undefined
+        : () => handleIncorrectClick(player.id, player.status),
+      onRename: disabled ? undefined : () => setRenamePlayerId(player.id),
+      onRemove: disabled
+        ? undefined
+        : () => setConfirmDialog({ type: "remove", playerId: player.id }),
+    }
+  }
+
+  const playerList = (
+    <ul className="flex flex-col gap-2">
+      {rankedPlayers.map((player) =>
+        disabled ? (
+          <li key={player.id}>
+            <PlayerCard {...getPlayerCardProps(player)} />
+          </li>
+        ) : (
+          <SortablePlayerCard
+            key={player.id}
+            id={player.id}
+            {...getPlayerCardProps(player)}
+          />
+        )
+      )}
+    </ul>
+  )
+
   return (
     <>
-      <ul className="flex flex-col gap-2">
-        {rankedPlayers.map((player) => (
-          <li key={player.id}>
-            <PlayerCard
-              name={player.name}
-              score={player.score}
-              rank={player.rank}
-              status={player.status}
-              isLeader={player.isLeader}
-              achievements={player.achievements}
-              onCorrect={
-                disabled
-                  ? undefined
-                  : () => handleCorrectClick(player.id, player.status)
-              }
-              onIncorrect={
-                disabled
-                  ? undefined
-                  : () => handleIncorrectClick(player.id, player.status)
-              }
-              onRename={
-                disabled ? undefined : () => setRenamePlayerId(player.id)
-              }
-              onRemove={
-                disabled
-                  ? undefined
-                  : () =>
-                      setConfirmDialog({ type: "remove", playerId: player.id })
-              }
-            />
-          </li>
-        ))}
-      </ul>
+      {disabled ? (
+        playerList
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={playerIds}
+            strategy={verticalListSortingStrategy}
+          >
+            {playerList}
+          </SortableContext>
+        </DndContext>
+      )}
 
       <PlayerRenameDialog
         open={renamePlayerId !== null}

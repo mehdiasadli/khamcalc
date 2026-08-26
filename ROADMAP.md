@@ -142,10 +142,10 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 8.1 | **Install `@dnd-kit/core` + `@dnd-kit/sortable`** (lightweight) | ⬜ |
-| 8.2 | **Drag handle on card** — grip icon only; card body not draggable | ⬜ |
-| 8.3 | **Reorder on game page** — host sorts players for their screen (e.g. frequent buzzers to top) | ⬜ |
-| 8.4 | **Persist order** — via store / localStorage | ⬜ |
+| 8.1 | **Install `@dnd-kit/core` + `@dnd-kit/sortable`** (lightweight) | ✅ |
+| 8.2 | **Drag handle on card** — grip icon only; card body not draggable | ✅ |
+| 8.3 | **Reorder on game page** — host sorts players for their screen (e.g. frequent buzzers to top) | ✅ |
+| 8.4 | **Persist order** — via store / localStorage | ✅ |
 
 **Scope:** Game page player list only (setup list optional later).
 
@@ -208,7 +208,7 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
          Update 11 (haptics/audio)
 ```
 
-**Recommended next step:** Update 8 (player reorder via DnD) — depends on 1.3 player order in store.
+**Recommended next step:** Update 9 (PWA) or Update 10 (SEO) — can parallelize.
 
 ---
 
@@ -237,3 +237,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 5 complete — copy summary and share sheet |
 | 2026-08-27 | Update 6 complete — finished flow, new game, config lock |
 | 2026-08-27 | Update 7 complete — Ace badge UI on player cards |
+| 2026-08-27 | Update 8 complete — drag-to-reorder players on game page |
