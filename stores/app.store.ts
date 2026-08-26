@@ -107,10 +107,14 @@ function syncScoresWithPlayers(
   return Object.fromEntries(playerIds.map((id) => [id, scores[id] ?? 0]))
 }
 
-function withAchievements(game: TGameState, config: TGameConfig): TGameState {
+function withAchievements(
+  game: TGameState,
+  config: TGameConfig,
+  players: TPlayer[]
+): TGameState {
   return {
     ...game,
-    achievements: recomputeAchievements(game, config),
+    achievements: recomputeAchievements(game, config, getAllPlayerIds(players)),
   }
 }
 
@@ -201,7 +205,8 @@ export const useAppStore = create<TAppStore>()(
                     ...getAllPlayerIds(players),
                   ]),
                 },
-                state.config
+                state.config,
+                players
               )
             : null
 
@@ -249,7 +254,8 @@ export const useAppStore = create<TAppStore>()(
                   getAllPlayerIds(players)
                 ),
               },
-              state.config
+              state.config,
+              players
             ),
           }
         })
@@ -285,7 +291,7 @@ export const useAppStore = create<TAppStore>()(
       },
 
       finishGame: () => {
-        const { game, config } = get()
+        const { game, config, players } = get()
         assertGame(game)
 
         set({
@@ -295,7 +301,8 @@ export const useAppStore = create<TAppStore>()(
               status: "finished",
               finishedAt: new Date().toISOString(),
             },
-            config
+            config,
+            players
           ),
         })
       },
@@ -345,7 +352,7 @@ export const useAppStore = create<TAppStore>()(
           }
         }
 
-        set({ game: withAchievements(nextGame, config) })
+        set({ game: withAchievements(nextGame, config, players) })
       },
 
       markCorrect: (playerId) => {
@@ -389,7 +396,7 @@ export const useAppStore = create<TAppStore>()(
           }
         }
 
-        set({ game: withAchievements(nextGame, config) })
+        set({ game: withAchievements(nextGame, config, players) })
       },
 
       prevQuestion: () => {
@@ -417,7 +424,7 @@ export const useAppStore = create<TAppStore>()(
       },
 
       nextQuestion: () => {
-        const { game, config } = get()
+        const { game, players, config } = get()
         assertGame(game)
 
         if (
@@ -472,7 +479,8 @@ export const useAppStore = create<TAppStore>()(
               currentQuestion: nextPosition.question,
               ...furthest,
             },
-            config
+            config,
+            players
           ),
         })
       },
@@ -503,7 +511,8 @@ export const useAppStore = create<TAppStore>()(
               questions,
               scores: recalculateScores(questions, allPlayerIds),
             },
-            config
+            config,
+            players
           ),
         })
       },
@@ -534,7 +543,8 @@ export const useAppStore = create<TAppStore>()(
               questions,
               scores: recalculateScores(questions, allPlayerIds),
             },
-            config
+            config,
+            players
           ),
         })
       },

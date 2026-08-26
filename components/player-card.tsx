@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { TGameAchievement } from "@/schemas/achievement.schema"
 import { PlayerAchievementBadges } from "@/components/player-achievement-badges"
+import { PlayerStreakIndicator } from "@/components/player-streak-indicator"
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
 export type PlayerCardStatus = "idle" | "correct" | "wrong" | "disabled"
@@ -25,6 +26,7 @@ export interface PlayerCardProps {
   status?: PlayerCardStatus
   isLeader?: boolean
   achievements?: TGameAchievement[]
+  correctStreak?: number
   dragHandle?: React.ReactNode
   isDragging?: boolean
   onCorrect?: () => void
@@ -60,6 +62,7 @@ export function PlayerCard({
   status = "idle",
   isLeader = false,
   achievements = [],
+  correctStreak = 0,
   dragHandle,
   isDragging = false,
   onCorrect,
@@ -110,6 +113,10 @@ export function PlayerCard({
               {name}
             </span>
             <PlayerAchievementBadges achievements={achievements} />
+            <PlayerStreakIndicator
+              streak={correctStreak}
+              isHot={correctStreak >= 3 || (isCorrect && correctStreak >= 2)}
+            />
           </div>
 
           <div className="flex shrink-0 flex-col items-end gap-0.5">

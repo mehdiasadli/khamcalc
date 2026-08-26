@@ -1,6 +1,12 @@
 import z from "zod"
 
-export const AchievementTypeSchema = z.enum(["ace"])
+export const AchievementTypeSchema = z.enum([
+  "ace",
+  "abyss",
+  "ghost",
+  "masterclass",
+  "catastrophe",
+])
 
 export type TAchievementType = z.infer<typeof AchievementTypeSchema>
 

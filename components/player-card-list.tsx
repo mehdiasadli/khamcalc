@@ -33,7 +33,9 @@ import {
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
 import { SortablePlayerCard } from "@/components/game/sortable-player-card"
 import { getPlayerAchievements } from "@/lib/achievements"
+import { sortAchievements } from "@/lib/achievement-display"
 import { getActivePlayers } from "@/lib/players"
+import { getCurrentCorrectStreak } from "@/lib/streaks"
 import {
   useAppStore,
   useCurrentQuestionRecord,
@@ -57,6 +59,7 @@ function useRankedGamePlayers() {
   const currentRecord = useCurrentQuestionRecord()
   const disabledIds = useQuestionDisabledPlayerIds()
   const achievements = useAppStore((state) => state.game?.achievements ?? [])
+  const questions = useAppStore((state) => state.game?.questions ?? [])
 
   return useMemo(() => {
     const sorted = [...players].sort((a, b) => b.score - a.score)
@@ -77,10 +80,13 @@ function useRankedGamePlayers() {
         rank,
         isLeader: player.score === topScore && topScore > 0,
         status,
-        achievements: getPlayerAchievements(achievements, player.id),
+        achievements: sortAchievements(
+          getPlayerAchievements(achievements, player.id)
+        ),
+        correctStreak: getCurrentCorrectStreak(player.id, questions),
       }
     })
-  }, [players, currentRecord, disabledIds, achievements])
+  }, [players, currentRecord, disabledIds, achievements, questions])
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
@@ -196,6 +202,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
       status: player.status,
       isLeader: player.isLeader,
       achievements: player.achievements,
+      correctStreak: player.correctStreak,
       onCorrect: disabled
         ? undefined
         : () => handleCorrectClick(player.id, player.status),
