@@ -116,10 +116,10 @@ Frontend-only trivia score calculator. No backend, no database — all state in 
 
 | # | Item | Status |
 | - | ---- | ------ |
-| 6.1 | **Finished-game CTA** — “View stats” on game page when `status === finished` | ⬜ |
-| 6.2 | **Setup summary card** — when last game finished: final scores + “View full stats” | ⬜ |
-| 6.3 | **New game** — `resetGame()` with confirm from finished state (and/or setup) | ⬜ |
-| 6.4 | **Lock config during active game** — disable preset/inputs while `game.status === playing``, or warn dialog | ⬜ |
+| 6.1 | **Finished-game CTA** — “View stats” on game page when `status === finished` | ✅ |
+| 6.2 | **Setup summary card** — when last game finished: final scores + “View full stats” | ✅ |
+| 6.3 | **New game** — `resetGame()` with confirm from finished state (and/or setup) | ✅ |
+| 6.4 | **Lock config during active game** — disable preset/inputs while `game.status === playing``, or warn dialog | ✅ |
 
 ---
 
@@ -235,3 +235,4 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 3 complete — stats page shell with nuqs tabs |
 | 2026-08-27 | Update 4 complete — shadcn charts and enhanced stats views |
 | 2026-08-27 | Update 5 complete — copy summary and share sheet |
+| 2026-08-27 | Update 6 complete — finished flow, new game, config lock |

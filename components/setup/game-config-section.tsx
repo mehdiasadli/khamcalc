@@ -26,6 +26,7 @@ interface ConfigNumberFieldProps {
   label: string
   description: string
   value: number | null
+  disabled?: boolean
   onChange: (value: number | null) => void
 }
 
@@ -34,6 +35,7 @@ function ConfigNumberField({
   label,
   description,
   value,
+  disabled = false,
   onChange,
 }: ConfigNumberFieldProps) {
   const unlimited = value === null
@@ -52,6 +54,7 @@ function ConfigNumberField({
           <Switch
             id={`${id}-unlimited`}
             checked={unlimited}
+            disabled={disabled}
             onCheckedChange={(checked) => {
               onChange(checked ? null : 1)
             }}
@@ -64,6 +67,7 @@ function ConfigNumberField({
           type="number"
           min={1}
           inputMode="numeric"
+          disabled={disabled}
           value={value ?? ""}
           onChange={(event) => {
             const next = Number.parseInt(event.target.value, 10)
@@ -77,8 +81,11 @@ function ConfigNumberField({
 
 export function GameConfigSection() {
   const config = useAppStore((state) => state.config)
+  const game = useAppStore((state) => state.game)
   const setConfig = useAppStore((state) => state.setConfig)
   const applyConfigPreset = useAppStore((state) => state.applyConfigPreset)
+
+  const configLocked = game?.status === "playing"
 
   function updateConfig(partial: Partial<TGameConfig>) {
     try {
@@ -97,6 +104,13 @@ export function GameConfigSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
+        {configLocked ? (
+          <p className="text-sm text-muted-foreground">
+            Config is locked while a game is in progress. Finish or reset the
+            game to change settings.
+          </p>
+        ) : null}
+
         <div className="flex flex-wrap gap-2">
           {Object.entries(configPresets).map(([key, preset]) => {
             const active = configMatches(config, preset.config)
@@ -107,6 +121,7 @@ export function GameConfigSection() {
                 type="button"
                 size="sm"
                 variant={active ? "default" : "outline"}
+                disabled={configLocked}
                 onClick={() => applyConfigPreset(preset.config)}
               >
                 {preset.name}
@@ -121,6 +136,7 @@ export function GameConfigSection() {
             label="Questions per round"
             description="How many questions before moving to the next round."
             value={config.questionsPerRound}
+            disabled={configLocked}
             onChange={(questionsPerRound) =>
               updateConfig({ questionsPerRound })
             }
@@ -130,6 +146,7 @@ export function GameConfigSection() {
             label="Max rounds"
             description="Stop after this many rounds, or leave unlimited."
             value={config.maxRounds}
+            disabled={configLocked}
             onChange={(maxRounds) => updateConfig({ maxRounds })}
           />
         </FieldGroup>

@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
+import { GameFinishedBar } from "@/components/game/game-finished-bar"
 import { GameModerationBar } from "@/components/game/game-moderation-bar"
 import { PlayerCardList } from "@/components/player-card-list"
 import { Badge } from "@/components/ui/badge"
@@ -61,7 +62,7 @@ export function GamePageContent() {
         <PlayerCardList disabled={isFinished} />
       </main>
 
-      <GameModerationBar disabled={isFinished} />
+      {isFinished ? <GameFinishedBar /> : <GameModerationBar />}
     </div>
   )
 }
