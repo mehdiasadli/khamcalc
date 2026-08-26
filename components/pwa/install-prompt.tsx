@@ -32,7 +32,7 @@ export function PwaInstallPrompt() {
       return
     }
 
-    if (window.localStorage.getItem(DISMISS_KEY) === "1") {
+    if (window.sessionStorage.getItem(DISMISS_KEY) === "1") {
       return
     }
 
@@ -72,7 +72,7 @@ export function PwaInstallPrompt() {
   }
 
   function handleDismiss() {
-    window.localStorage.setItem(DISMISS_KEY, "1")
+    window.sessionStorage.setItem(DISMISS_KEY, "1")
     setVisible(false)
     setDeferredPrompt(null)
   }

@@ -1,6 +1,7 @@
 "use client"
 
 import type { TGameAnalytics } from "@/lib/analytics"
+import { formatScore, formatPointDelta } from "@/lib/scoring-format"
 import { formatDecimal, formatPercent } from "@/lib/stats-format"
 
 import { StatsStreakChart } from "@/components/stats/stats-streak-chart"
@@ -42,8 +43,8 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
 
       {players.map((player) => {
         const roundPoints = Object.entries(player.pointsPerRound)
-          .filter(([, points]) => points > 0)
-          .map(([round, points]) => `R${round}: ${points}`)
+          .filter(([, points]) => points !== 0)
+          .map(([round, points]) => `R${round}: ${formatPointDelta(points)}`)
           .join(" · ")
 
         return (
@@ -59,7 +60,7 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span className="font-mono text-xl tabular-nums">
-                    {player.score}
+                    {formatScore(player.score)}
                   </span>
                   <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
                     pts
@@ -102,7 +103,7 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
                 value={
                   player.comebackDelta === null
                     ? "—"
-                    : `${player.comebackDelta >= 0 ? "+" : ""}${player.comebackDelta} pts`
+                    : `${formatPointDelta(player.comebackDelta)} pts`
                 }
               />
               {roundPoints ? (

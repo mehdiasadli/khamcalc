@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { formatScore } from "@/lib/scoring-format"
 import type { TGameAchievement } from "@/schemas/achievement.schema"
 import { PlayerAchievementBadges } from "@/components/player-achievement-badges"
 import { PlayerStreakIndicator } from "@/components/player-streak-indicator"
@@ -44,8 +45,8 @@ function getInitials(name: string) {
     .toUpperCase()
 }
 
-function formatScore(score: number) {
-  return new Intl.NumberFormat("en-US").format(score)
+function formatScoreValue(score: number) {
+  return formatScore(score)
 }
 
 const statusStyles: Record<PlayerCardStatus, string> = {
@@ -126,7 +127,7 @@ export function PlayerCard({
                 isLeader ? "text-primary" : "text-foreground"
               )}
             >
-              {formatScore(score)}
+              {formatScoreValue(score)}
             </span>
             <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
               pts

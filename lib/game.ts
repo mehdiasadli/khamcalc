@@ -1,28 +1,9 @@
 import type { TGameConfig } from "@/schemas/config.schema"
-import {
-  POINTS_PER_CORRECT,
-  type TGameState,
-  type TQuestionPosition,
-  type TQuestionRecord,
-} from "@/schemas/game.schema"
+import type { TScoringConfig } from "@/schemas/scoring.schema"
+import type { TGameState, TQuestionPosition, TQuestionRecord } from "@/schemas/game.schema"
 
 export function createEmptyScores(playerIds: string[]): Record<string, number> {
   return Object.fromEntries(playerIds.map((id) => [id, 0]))
-}
-
-export function recalculateScores(
-  questions: TQuestionRecord[],
-  playerIds: string[]
-): Record<string, number> {
-  const scores = createEmptyScores(playerIds)
-
-  for (const record of questions) {
-    if (!record.correctPlayerId) continue
-    scores[record.correctPlayerId] =
-      (scores[record.correctPlayerId] ?? 0) + POINTS_PER_CORRECT
-  }
-
-  return scores
 }
 
 export function questionKey(round: number, question: number): string {
@@ -223,7 +204,10 @@ export function resolvePreviousPosition(
   return previous
 }
 
-export function createInitialGameState(playerIds: string[]): TGameState {
+export function createInitialGameState(
+  playerIds: string[],
+  scoringConfig: TScoringConfig
+): TGameState {
   return {
     status: "playing",
     currentRound: 1,
@@ -231,6 +215,7 @@ export function createInitialGameState(playerIds: string[]): TGameState {
     furthestRound: 1,
     furthestQuestion: 1,
     scores: createEmptyScores(playerIds),
+    scoringConfig,
     questions: [],
     achievements: [],
     startedAt: new Date().toISOString(),

@@ -1,10 +1,12 @@
 import type { TGameConfig } from "@/schemas/config.schema"
+import { scoringConfigsEqual } from "@/lib/scoring"
 import { configPresets } from "@/lib/config-presets"
 
 export function configMatches(a: TGameConfig, b: TGameConfig): boolean {
   return (
     a.questionsPerRound === b.questionsPerRound &&
-    a.maxRounds === b.maxRounds
+    a.maxRounds === b.maxRounds &&
+    scoringConfigsEqual(a.scoring, b.scoring)
   )
 }
 

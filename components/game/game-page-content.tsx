@@ -12,6 +12,8 @@ import { PlayerCardList } from "@/components/player-card-list"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { getQuestionCorrectPoints, getWrongDeductionPoints } from "@/lib/scoring"
+import { formatScore } from "@/lib/scoring-format"
 import { useAppStore } from "@/stores"
 import { SettingsIcon, BarChart3Icon, FlagIcon } from "lucide-react"
 
@@ -30,15 +32,34 @@ export function GamePageContent() {
   }
 
   const isFinished = game.status === "finished"
+  const questionPoints = getQuestionCorrectPoints(
+    game.scoringConfig,
+    game.currentRound,
+    game.currentQuestion
+  )
+  const wrongPoints = getWrongDeductionPoints(
+    game.scoringConfig,
+    game.currentRound,
+    game.currentQuestion
+  )
 
   return (
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-4 p-4 sm:p-6">
           <div className="flex min-w-0 items-center gap-2">
-            <p className="font-mono text-sm tracking-wide tabular-nums">
-              Round {game.currentRound} · Question {game.currentQuestion}
-            </p>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <p className="font-mono text-sm tracking-wide tabular-nums">
+                Round {game.currentRound} · Question {game.currentQuestion}
+              </p>
+              {game.scoringConfig.showQuestionValue ? (
+                <p className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                  {wrongPoints > 0
+                    ? `${formatScore(questionPoints)} // ${formatScore(-wrongPoints)} pts`
+                    : `${formatScore(questionPoints)} pts`}
+                </p>
+              ) : null}
+            </div>
             {isFinished ? <Badge variant="secondary">Finished</Badge> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">

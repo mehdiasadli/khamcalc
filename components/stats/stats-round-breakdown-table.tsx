@@ -1,6 +1,7 @@
 "use client"
 
 import type { TGameAnalytics } from "@/lib/analytics"
+import { formatScore } from "@/lib/scoring-format"
 import type { TPlayer } from "@/schemas/player.schema"
 
 import {
@@ -74,7 +75,7 @@ export function StatsRoundBreakdownTable({
                       key={player.id}
                       className="py-2 pr-4 font-mono tabular-nums"
                     >
-                      {row.cumulativeScores[player.id] ?? 0}
+                      {formatScore(row.cumulativeScores[player.id] ?? 0)}
                     </td>
                   ))}
                   <td className="py-2 font-medium">

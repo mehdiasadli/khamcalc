@@ -1,12 +1,13 @@
 import { isRoundComplete } from "@/lib/achievements"
 import { detectPresetName } from "@/lib/config"
+import {
+  getCumulativeScoresThroughRound,
+  getRoundScores,
+  recalculateScores,
+} from "@/lib/scoring"
 import { getLongestCorrectStreak } from "@/lib/streaks"
 import { formatDuration, formatPercent } from "@/lib/stats-format"
-import {
-  POINTS_PER_CORRECT,
-  type TGameState,
-  type TQuestionRecord,
-} from "@/schemas/game.schema"
+import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import type { TGameConfig } from "@/schemas/config.schema"
 import type { TPlayer } from "@/schemas/player.schema"
 
@@ -112,38 +113,6 @@ function getRoundNumbers(game: TGameState): number[] {
   return Array.from({ length: maxRound }, (_, index) => index + 1)
 }
 
-function getCumulativeScoresThroughRound(
-  questions: TQuestionRecord[],
-  playerIds: string[],
-  throughRound: number
-): Record<string, number> {
-  const scores = Object.fromEntries(playerIds.map((id) => [id, 0]))
-
-  for (const record of questions) {
-    if (record.round > throughRound || !record.correctPlayerId) continue
-    scores[record.correctPlayerId] =
-      (scores[record.correctPlayerId] ?? 0) + POINTS_PER_CORRECT
-  }
-
-  return scores
-}
-
-function getRoundScores(
-  questions: TQuestionRecord[],
-  playerIds: string[],
-  round: number
-): Record<string, number> {
-  const scores = Object.fromEntries(playerIds.map((id) => [id, 0]))
-
-  for (const record of questions) {
-    if (record.round !== round || !record.correctPlayerId) continue
-    scores[record.correctPlayerId] =
-      (scores[record.correctPlayerId] ?? 0) + POINTS_PER_CORRECT
-  }
-
-  return scores
-}
-
 function getLeadersFromScores(
   scores: Record<string, number>
 ): { leaderIds: string[]; topScore: number } {
@@ -154,8 +123,9 @@ function getLeadersFromScores(
   }
 
   const topScore = Math.max(...entries.map(([, score]) => score))
+  const allZero = entries.every(([, score]) => score === 0)
 
-  if (topScore === 0) {
+  if (allZero) {
     return { leaderIds: [], topScore: 0 }
   }
 
@@ -237,7 +207,8 @@ function getCompletedRounds(
 function getComebackDelta(
   playerId: string,
   questions: TQuestionRecord[],
-  completedRounds: number[]
+  completedRounds: number[],
+  scoring: TGameState["scoringConfig"]
 ): number | null {
   if (completedRounds.length < 2) return null
 
@@ -249,12 +220,14 @@ function getComebackDelta(
   const previousScore = getCumulativeScoresThroughRound(
     questions,
     [playerId],
-    previousRound
+    previousRound,
+    scoring
   )[playerId]
   const latestScore = getCumulativeScoresThroughRound(
     questions,
     [playerId],
-    latestRound
+    latestRound,
+    scoring
   )[playerId]
 
   return latestScore - previousScore
@@ -316,7 +289,8 @@ export function getRoundBreakdown(input: TAnalyticsInput): TRoundBreakdownRow[] 
     const cumulativeScores = getCumulativeScoresThroughRound(
       game.questions,
       playerIds,
-      round
+      round,
+      game.scoringConfig
     )
     const { leaderIds } = getLeadersFromScores(cumulativeScores)
 
@@ -342,7 +316,8 @@ export function getLeaderboardTimeline(
       const cumulativeScores = getCumulativeScoresThroughRound(
         game.questions,
         playerIds,
-        round
+        round,
+        game.scoringConfig
       )
       const { leaderIds, topScore } = getLeadersFromScores(cumulativeScores)
 
@@ -383,7 +358,12 @@ export function getPlayerStatsList(input: TAnalyticsInput): TPlayerStats[] {
     const pointsPerRound: Record<number, number> = {}
     for (const round of rounds) {
       pointsPerRound[round] =
-        getRoundScores(questions, playerIds, round)[player.id] ?? 0
+        getRoundScores(
+          questions,
+          playerIds,
+          round,
+          game.scoringConfig
+        )[player.id] ?? 0
     }
 
     return {
@@ -403,7 +383,12 @@ export function getPlayerStatsList(input: TAnalyticsInput): TPlayerStats[] {
         correctCount > 0 ? wrongCount / correctCount : null,
       roundsLed: roundsLedByPlayer.get(player.id) ?? 0,
       idleQuestionCount: questions.length - participationCount,
-      comebackDelta: getComebackDelta(player.id, questions, completedRounds),
+      comebackDelta: getComebackDelta(
+        player.id,
+        questions,
+        completedRounds,
+        game.scoringConfig
+      ),
       longestCorrectStreak: getLongestCorrectStreak(player.id, questions),
     }
   })

@@ -1,10 +1,7 @@
 import type { TGameAchievement } from "@/schemas/achievement.schema"
 import type { TGameConfig } from "@/schemas/config.schema"
-import {
-  POINTS_PER_CORRECT,
-  type TGameState,
-  type TQuestionRecord,
-} from "@/schemas/game.schema"
+import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
+import { getPlayerRoundNetScore } from "@/lib/scoring"
 
 type AchievementBucket = Map<
   string,
@@ -68,19 +65,10 @@ function getCompletedRounds(
 function getPlayerRoundScore(
   playerId: string,
   round: number,
-  questions: TQuestionRecord[]
+  questions: TQuestionRecord[],
+  scoring: TGameState["scoringConfig"]
 ): number {
-  let score = 0
-
-  for (const record of questions) {
-    if (record.round !== round || record.correctPlayerId !== playerId) {
-      continue
-    }
-
-    score += POINTS_PER_CORRECT
-  }
-
-  return score
+  return getPlayerRoundNetScore(playerId, round, questions, scoring)
 }
 
 function countPlayerWrongInRound(
@@ -212,7 +200,9 @@ export function detectMasterclassForGame(
   }
 
   return completedRounds.every(
-    (round) => getPlayerRoundScore(playerId, round, game.questions) > 0
+    (round) =>
+      getPlayerRoundScore(playerId, round, game.questions, game.scoringConfig) >
+      0
   )
 }
 
@@ -226,7 +216,12 @@ export function detectCatastropheForGame(
   }
 
   return completedRounds.every((round) => {
-    const roundScore = getPlayerRoundScore(playerId, round, game.questions)
+    const roundScore = getPlayerRoundScore(
+      playerId,
+      round,
+      game.questions,
+      game.scoringConfig
+    )
     const wrongCount = countPlayerWrongInRound(playerId, round, game.questions)
 
     return roundScore === 0 && wrongCount > 0

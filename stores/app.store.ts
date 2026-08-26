@@ -7,8 +7,10 @@ import {
 import {
   GameConfigSchema,
   UpdateGameConfigSchema,
+  defaultScoringConfig,
   type TGameConfig,
 } from "@/schemas/config.schema"
+import { normalizeScoringConfig, recalculateScores } from "@/lib/scoring"
 import {
   defaultHostPreferences,
   HostPreferencesSchema,
@@ -29,7 +31,6 @@ import {
   isAtLeadingEdge,
   isPlayerDisabledForQuestion,
   questionHasAnswers,
-  recalculateScores,
   removeQuestionRecord,
   resolvePreviousPosition,
   upsertQuestionRecord,
@@ -80,6 +81,7 @@ export interface TAppStore extends TAppState, TAppActions {}
 export const initialConfig: TGameConfig = {
   questionsPerRound: 5,
   maxRounds: null,
+  scoring: defaultScoringConfig,
 }
 
 export const initialAppState: TAppState = {
@@ -98,13 +100,6 @@ function assertGame(game: TGameState | null): asserts game is TGameState {
   if (game.status === "finished") {
     throw new Error("Game is finished")
   }
-}
-
-function syncScoresWithPlayers(
-  scores: Record<string, number>,
-  playerIds: string[]
-): Record<string, number> {
-  return Object.fromEntries(playerIds.map((id) => [id, scores[id] ?? 0]))
 }
 
 function withAchievements(
@@ -162,6 +157,12 @@ export const useAppStore = create<TAppStore>()(
         const config = UpdateGameConfigSchema.parse({
           ...get().config,
           ...input,
+          scoring: input.scoring
+            ? normalizeScoringConfig({
+                ...get().config.scoring,
+                ...input.scoring,
+              })
+            : get().config.scoring,
         })
 
         set({ config: GameConfigSchema.parse(config) })
@@ -201,9 +202,11 @@ export const useAppStore = create<TAppStore>()(
             ? withAchievements(
                 {
                   ...state.game,
-                  scores: syncScoresWithPlayers(state.game.scores, [
-                    ...getAllPlayerIds(players),
-                  ]),
+                  scores: recalculateScores(
+                    state.game.questions,
+                    getAllPlayerIds(players),
+                    state.game.scoringConfig
+                  ),
                 },
                 state.config,
                 players
@@ -249,9 +252,10 @@ export const useAppStore = create<TAppStore>()(
             game: withAchievements(
               {
                 ...state.game,
-                scores: syncScoresWithPlayers(
-                  state.game.scores,
-                  getAllPlayerIds(players)
+                scores: recalculateScores(
+                  state.game.questions,
+                  getAllPlayerIds(players),
+                  state.game.scoringConfig
                 ),
               },
               state.config,
@@ -271,7 +275,7 @@ export const useAppStore = create<TAppStore>()(
       },
 
       enterGame: () => {
-        const { game, players, playerOrder } = get()
+        const { game, players, playerOrder, config } = get()
 
         if (game) return
 
@@ -282,7 +286,10 @@ export const useAppStore = create<TAppStore>()(
         }
 
         set({
-          game: createInitialGameState(activePlayerIds),
+          game: createInitialGameState(
+            activePlayerIds,
+            normalizeScoringConfig(config.scoring)
+          ),
         })
       },
 
@@ -339,6 +346,11 @@ export const useAppStore = create<TAppStore>()(
         let nextGame: TGameState = {
           ...game,
           questions,
+          scores: recalculateScores(
+            questions,
+            getAllPlayerIds(players),
+            game.scoringConfig
+          ),
         }
 
         if (
@@ -381,7 +393,11 @@ export const useAppStore = create<TAppStore>()(
 
         const questions = upsertQuestionRecord(game.questions, record)
         const allPlayerIds = getAllPlayerIds(players)
-        const scores = recalculateScores(questions, allPlayerIds)
+        const scores = recalculateScores(
+          questions,
+          allPlayerIds,
+          game.scoringConfig
+        )
 
         let nextGame: TGameState = {
           ...game,
@@ -509,7 +525,11 @@ export const useAppStore = create<TAppStore>()(
             {
               ...game,
               questions,
-              scores: recalculateScores(questions, allPlayerIds),
+              scores: recalculateScores(
+                questions,
+                allPlayerIds,
+                game.scoringConfig
+              ),
             },
             config,
             players
@@ -541,7 +561,11 @@ export const useAppStore = create<TAppStore>()(
             {
               ...game,
               questions,
-              scores: recalculateScores(questions, allPlayerIds),
+              scores: recalculateScores(
+                questions,
+                allPlayerIds,
+                game.scoringConfig
+              ),
             },
             config,
             players
@@ -549,6 +573,42 @@ export const useAppStore = create<TAppStore>()(
         })
       },
     }),
-    { name: "khamcalc" }
+    {
+      name: "khamcalc",
+      version: 1,
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<TAppState>
+        const config = {
+          ...currentState.config,
+          ...persisted.config,
+          scoring: normalizeScoringConfig(
+            persisted.config?.scoring ?? currentState.config.scoring
+          ),
+        }
+
+        const game = persisted.game
+          ? {
+              ...persisted.game,
+              scoringConfig: normalizeScoringConfig(
+                persisted.game.scoringConfig ?? config.scoring
+              ),
+              scores: persisted.game.scores ?? {},
+            }
+          : null
+
+        return {
+          ...currentState,
+          ...persisted,
+          config,
+          hostPreferences: {
+            ...currentState.hostPreferences,
+            ...persisted.hostPreferences,
+          },
+          players: persisted.players ?? currentState.players,
+          playerOrder: persisted.playerOrder ?? currentState.playerOrder,
+          game,
+        }
+      },
+    }
   )
 )

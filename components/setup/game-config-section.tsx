@@ -130,6 +130,18 @@ export function GameConfigSection() {
           })}
         </div>
 
+        {Object.values(configPresets).some((preset) =>
+          configMatches(config, preset.config)
+        ) ? (
+          <p className="text-xs text-muted-foreground">
+            {
+              Object.values(configPresets).find((preset) =>
+                configMatches(config, preset.config)
+              )?.description
+            }
+          </p>
+        ) : null}
+
         <FieldGroup>
           <ConfigNumberField
             id="questions-per-round"

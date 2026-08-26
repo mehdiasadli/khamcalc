@@ -1,8 +1,7 @@
 import z from "zod"
 
 import { GameAchievementSchema } from "@/schemas/achievement.schema"
-
-export const POINTS_PER_CORRECT = 100
+import { ScoringConfigSchema } from "@/schemas/scoring.schema"
 
 export const GameStatusSchema = z.enum(["idle", "playing", "finished"])
 
@@ -31,7 +30,8 @@ export const GameStateSchema = z.object({
   currentQuestion: z.number().int().positive(),
   furthestRound: z.number().int().positive(),
   furthestQuestion: z.number().int().positive(),
-  scores: z.record(z.string(), z.number().int().min(0)),
+  scores: z.record(z.string(), z.number().int()),
+  scoringConfig: ScoringConfigSchema,
   questions: z.array(QuestionRecordSchema),
   achievements: z.array(GameAchievementSchema),
   startedAt: z.iso.datetime().nullable(),

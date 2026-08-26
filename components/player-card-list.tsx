@@ -35,6 +35,11 @@ import { SortablePlayerCard } from "@/components/game/sortable-player-card"
 import { getPlayerAchievements } from "@/lib/achievements"
 import { sortAchievements } from "@/lib/achievement-display"
 import { getActivePlayers } from "@/lib/players"
+import {
+  getQuestionCorrectPoints,
+  getWrongDeductionPoints,
+} from "@/lib/scoring"
+import { formatScore } from "@/lib/scoring-format"
 import { getCurrentCorrectStreak } from "@/lib/streaks"
 import {
   useAppStore,
@@ -64,6 +69,7 @@ function useRankedGamePlayers() {
   return useMemo(() => {
     const sorted = [...players].sort((a, b) => b.score - a.score)
     const topScore = sorted[0]?.score ?? 0
+    const allZero = sorted.every((player) => player.score === 0)
 
     return players.map((player) => {
       const rank = sorted.findIndex((item) => item.id === player.id) + 1
@@ -78,7 +84,7 @@ function useRankedGamePlayers() {
       return {
         ...player,
         rank,
-        isLeader: player.score === topScore && topScore > 0,
+        isLeader: !allZero && player.score === topScore,
         status,
         achievements: sortAchievements(
           getPlayerAchievements(achievements, player.id)
@@ -90,6 +96,7 @@ function useRankedGamePlayers() {
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
+  const game = useAppStore((state) => state.game)
   const allPlayers = useAppStore((state) => state.players)
   const activePlayers = getActivePlayers(allPlayers)
   const rankedPlayers = useRankedGamePlayers()
@@ -124,6 +131,21 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
   const confirmTarget = rankedPlayers.find(
     (player) => player.id === confirmDialog?.playerId
   )
+
+  const questionPoints = game
+    ? getQuestionCorrectPoints(
+        game.scoringConfig,
+        game.currentRound,
+        game.currentQuestion
+      )
+    : 0
+  const wrongPoints = game
+    ? getWrongDeductionPoints(
+        game.scoringConfig,
+        game.currentRound,
+        game.currentQuestion
+      )
+    : 0
 
   function handleStoreAction(action: () => void) {
     try {
@@ -282,14 +304,18 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
             <AlertDialogDescription>
               {confirmDialog?.type === "undo-correct" ? (
                 <>
-                  This removes 100 points from{" "}
+                  This removes {formatScore(questionPoints)} points from{" "}
                   <span className="text-foreground">{confirmTarget?.name}</span>.
                 </>
               ) : null}
               {confirmDialog?.type === "undo-incorrect" ? (
                 <>
                   <span className="text-foreground">{confirmTarget?.name}</span>{" "}
-                  will be eligible again for this question.
+                  will be eligible again
+                  {wrongPoints > 0
+                    ? ` and +${formatScore(wrongPoints)} will be restored`
+                    : ""}
+                  .
                 </>
               ) : null}
               {confirmDialog?.type === "remove" ? (
