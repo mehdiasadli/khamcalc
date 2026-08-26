@@ -129,13 +129,11 @@ export function PlayerCard({
         ) : null}
 
         <div className="flex items-start gap-2">
-          {dragHandle ? (
-            <div className="flex shrink-0 items-center self-stretch">
-              {dragHandle}
-            </div>
-          ) : null}
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {dragHandle ? (
+              <div className="flex shrink-0 items-center">{dragHandle}</div>
+            ) : null}
 
-          <div className="flex min-w-0 flex-1 items-center gap-2.5">
             {rank !== undefined ? (
               <span
                 className={cn(
