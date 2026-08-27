@@ -1,7 +1,7 @@
-export const PWA_APP_NAME = "KhamCalc"
-export const PWA_APP_SHORT_NAME = "KhamCalc"
+export const PWA_APP_NAME = "TriviScore"
+export const PWA_APP_SHORT_NAME = "TriviScore"
 export const PWA_APP_DESCRIPTION =
-  "Point calculator for trivia games such as Khamsa, Brain Ring, and more."
+  "Live scorekeeper for trivia games — Khamsa, Brain Ring, Jeopardy!, and custom scoring formats."
 
 export const PWA_THEME_COLOR = "#9AE635"
 export const PWA_BACKGROUND_COLOR = "#FFFFFF"

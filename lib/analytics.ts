@@ -11,6 +11,7 @@ import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import type { TGameConfig } from "@/schemas/config.schema"
 import type { TPlayer } from "@/schemas/player.schema"
 import { getPlayerAnswerStats } from "@/lib/player-answer-stats"
+import { PWA_APP_NAME } from "@/lib/pwa/constants"
 
 export interface TGameProgress {
   currentRound: number
@@ -440,7 +441,7 @@ export function formatGameSummary(input: TAnalyticsInput): string {
     : null
 
   const lines = [
-    `KhamCalc — ${presetLabel} (${statusLabel})`,
+    `${PWA_APP_NAME} — ${presetLabel} (${statusLabel})`,
     progressLabel,
     `Duration: ${formatDuration(overview.elapsedMs)}`,
     `Questions: ${overview.questionsPlayed} played (${overview.skippedCount} skipped)`,

@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { MIN_PLAYERS, getActivePlayerCount } from "@/lib/players"
+import { PWA_APP_NAME } from "@/lib/pwa/constants"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
 import { ArrowRightIcon, BarChart3Icon } from "lucide-react"
@@ -56,7 +57,7 @@ export function SetupPage() {
           <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
             Setup
           </p>
-          <h1 className="font-heading text-xl font-medium">KhamCalc</h1>
+          <h1 className="font-heading text-xl font-medium">{PWA_APP_NAME}</h1>
           <p className="text-sm text-muted-foreground">
             Configure the game and add players before you start scoring.
           </p>

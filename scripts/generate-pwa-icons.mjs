@@ -8,6 +8,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const iconsDir = path.join(__dirname, "../public/icons")
 const publicDir = path.join(__dirname, "../public")
 
+const APP_LABEL = "TriviScore"
+
 const BRAND = {
   background: "#9AE635",
   foreground: "#365314",
@@ -17,13 +19,14 @@ const BRAND = {
 function createIconSvg(size, maskable = false) {
   const radius = maskable ? 0 : Math.round(size * 0.22)
   const scoreSize = maskable ? size * 0.34 : size * 0.35
-  const labelSize = maskable ? size * 0.09 : size * 0.094
   const scoreY = maskable ? size * 0.56 : size * 0.55
   const labelY = maskable ? size * 0.74 : size * 0.74
+  const showLabel = !maskable && size >= 128
+  const labelSize = size * 0.068
 
-  const label = maskable
-    ? ""
-    : `<text x="50%" y="${labelY}" font-family="system-ui, -apple-system, sans-serif" font-size="${labelSize}" font-weight="600" fill="${BRAND.accent}" text-anchor="middle" opacity="0.9">KhamCalc</text>`
+  const label = showLabel
+    ? `<text x="50%" y="${labelY}" font-family="system-ui, -apple-system, sans-serif" font-size="${labelSize}" font-weight="600" fill="${BRAND.accent}" text-anchor="middle" opacity="0.9">${APP_LABEL}</text>`
+    : ""
 
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
   <rect width="${size}" height="${size}" rx="${radius}" fill="${BRAND.background}"/>

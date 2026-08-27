@@ -1,4 +1,4 @@
-# KhamCalc Roadmap
+# TriviScore Roadmap
 
 Frontend-only trivia score calculator. No backend, no database — all state in Zustand + `localStorage`.
 
@@ -246,11 +246,11 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
 
 | #    | Item                                                                                              | Status |
 | ---- | ------------------------------------------------------------------------------------------------- | ------ |
-| 12.1 | **App name → TriviScore** — locked; update display name everywhere                         | ⬜     |
-| 12.2 | **Manifest + PWA** — `name`, `short_name`, icons alt text, install prompt copy                    | ⬜     |
-| 12.3 | **SEO metadata** — titles, descriptions, OG/Twitter, `site.ts` constants                          | ⬜     |
-| 12.4 | **In-app copy** — setup header, empty states, share summary prefix, achievement strings if branded | ⬜     |
-| 12.5 | **Repo / deploy** — optional rename of domain, GitHub repo; **keep persist key `khamcalc`** (locked) | ⬜     |
+| 12.1 | **App name → TriviScore** — locked; update display name everywhere                         | ✅     |
+| 12.2 | **Manifest + PWA** — `name`, `short_name`, icons alt text, install prompt copy                    | ✅     |
+| 12.3 | **SEO metadata** — titles, descriptions, OG/Twitter, `site.ts` constants                          | ✅     |
+| 12.4 | **In-app copy** — setup header, empty states, share summary prefix, achievement strings if branded | ✅     |
+| 12.5 | **Repo / deploy** — optional rename of domain, GitHub repo; **keep persist key `khamcalc`** (locked) | ✅     |
 
 **Notes:** Display name TriviScore only; internal storage key stays `khamcalc`.
 
@@ -409,6 +409,7 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Post-roadmap — flexible scoring, presets, sticks, player stats, theme toggle       |
 | 2026-08-27 | Updates 12–19 drafted from next-items list (rebrand, i18n, export, heatmaps, etc.) |
 | 2026-08-27 | Grill-me locked: TriviScore, EN/AZ/RU, JSON-only, GA4, config randomize, scroll heatmaps, keep persist key |
+| 2026-08-27 | Update 12 complete — TriviScore rebrand, PWA icons regenerated, metadata and share copy updated |
 
 ---
 
