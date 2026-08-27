@@ -345,9 +345,9 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
 
 | #    | Item                                                                                    | Status |
 | ---- | --------------------------------------------------------------------------------------- | ------ |
-| 19.1 | **Google Analytics 4** — page views + optional custom events (locked; not Vercel)       | ⬜     |
-| 19.2 | **Privacy** — no PII in events; GA measurement ID via env; README + consent if needed   | ⬜     |
-| 19.3 | **Key events (optional)** — `game_started`, `game_finished`, `share_opened`, `export_used` | ⬜     |
+| 19.1 | **Google Analytics 4** — page views + optional custom events (locked; not Vercel)       | ✅     |
+| 19.2 | **Privacy** — no PII in events; GA measurement ID via env; README + consent if needed   | ✅     |
+| 19.3 | **Key events (optional)** — `game_started`, `game_finished`, `share_opened`, `export_used` | ✅     |
 
 **Note:** Use `@next/third-parties/google` or gtag snippet; respect ad blockers; EU hosts may need consent UI — confirm at implementation time.
 
@@ -413,6 +413,7 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 13 complete — custom i18n (EN/AZ/RU), language picker, date-fns duration formatting |
 | 2026-08-27 | Update 17 complete — player answer heatmaps on stats tab, legend, scroll grids, canvas PNG export |
 | 2026-08-27 | Update 18 complete — in-game “See stats” modal with live score, accuracy, streak, round points, heatmap |
+| 2026-08-27 | Update 19 complete — GA4 page views + custom events, env-gated, README setup for Netlify |
 
 ---
 

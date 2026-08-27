@@ -20,6 +20,7 @@ import {
 } from "@/lib/share"
 import { getShareTargets } from "@/lib/i18n/helpers"
 import { useTranslation } from "@/lib/i18n/context"
+import { trackShareOpened } from "@/lib/telemetry/track"
 import { Share2Icon } from "lucide-react"
 
 interface StatsShareActionsProps {
@@ -82,7 +83,10 @@ export function StatsShareActions({ summary }: StatsShareActionsProps) {
         variant="ghost"
         size="icon-sm"
         aria-label={t("stats.shareSummary")}
-        onClick={() => setSheetOpen(true)}
+        onClick={() => {
+          setSheetOpen(true)
+          trackShareOpened("stats")
+        }}
       >
         <Share2Icon />
       </Button>

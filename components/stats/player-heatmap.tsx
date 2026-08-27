@@ -10,6 +10,7 @@ import {
   type THeatmapCellState,
   type TPlayerHeatmap,
 } from "@/lib/player-heatmap"
+import { trackExportUsed } from "@/lib/telemetry/track"
 import type { TGameConfig } from "@/schemas/config.schema"
 import type { TGameState } from "@/schemas/game.schema"
 import { cn } from "@/lib/utils"
@@ -144,6 +145,7 @@ export function PlayerHeatmap({
       roundLabel: (round) => t("common.roundShort", { round }),
       questionLabel: (question) => String(question),
     })
+    trackExportUsed("heatmap_png")
   }
 
   const isLarge =

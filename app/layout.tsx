@@ -4,6 +4,7 @@ import type { Viewport } from "next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { Providers } from "@/components/providers"
+import { AppAnalytics } from "@/components/telemetry/app-analytics"
 import { createRootMetadata, rootViewport } from "@/lib/seo/metadata"
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" })
@@ -35,6 +36,7 @@ export default function RootLayout({
     >
       <body>
         <Providers>{children}</Providers>
+        <AppAnalytics />
       </body>
     </html>
   )

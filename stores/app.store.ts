@@ -46,6 +46,8 @@ import {
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
+import { trackGameFinished, trackGameStarted } from "@/lib/telemetry/track"
+
 export interface TAppState {
   config: TGameConfig
   hostPreferences: THostPreferences
@@ -291,6 +293,11 @@ export const useAppStore = create<TAppStore>()(
             normalizeScoringConfig(config.scoring)
           ),
         })
+
+        trackGameStarted({
+          config,
+          playerCount: activePlayerIds.length,
+        })
       },
 
       resetGame: () => {
@@ -300,6 +307,8 @@ export const useAppStore = create<TAppStore>()(
       finishGame: () => {
         const { game, config, players } = get()
         assertGame(game)
+
+        const questionsPlayed = game.questions.length
 
         set({
           game: withAchievements(
@@ -311,6 +320,12 @@ export const useAppStore = create<TAppStore>()(
             config,
             players
           ),
+        })
+
+        trackGameFinished({
+          config,
+          playerCount: getActivePlayerCount(players),
+          questionsPlayed,
         })
       },
 
