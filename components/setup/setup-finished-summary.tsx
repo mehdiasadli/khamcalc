@@ -11,13 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { formatDuration } from "@/lib/stats-format"
+import { useFormat, useTranslation } from "@/lib/i18n/context"
 import { getActivePlayers } from "@/lib/players"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
 import { BarChart3Icon } from "lucide-react"
 
 export function SetupFinishedSummary() {
+  const { t } = useTranslation()
+  const { formatDuration } = useFormat()
   const game = useAppStore((state) => state.game)
   const players = useAppStore((state) => state.players)
 
@@ -45,9 +47,9 @@ export function SetupFinishedSummary() {
   return (
     <Card size="sm" className="ring-primary/20">
       <CardHeader>
-        <CardTitle>Last game</CardTitle>
+        <CardTitle>{t("setup.lastGame")}</CardTitle>
         <CardDescription>
-          Finished · {formatDuration(elapsedMs)}
+          {t("setup.lastGameDuration", { duration: formatDuration(elapsedMs) })}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -60,7 +62,9 @@ export function SetupFinishedSummary() {
               <span className="truncate">
                 {index + 1}. {player.name}
               </span>
-              <span className="font-mono tabular-nums">{player.score} pts</span>
+              <span className="font-mono tabular-nums">
+                {player.score} {t("common.pts")}
+              </span>
             </li>
           ))}
         </ul>
@@ -70,7 +74,7 @@ export function SetupFinishedSummary() {
           className={cn(buttonVariants({ variant: "outline", className: "w-full" }))}
         >
           <BarChart3Icon data-icon="inline-start" />
-          View full stats
+          {t("setup.viewFullStats")}
         </Link>
       </CardContent>
     </Card>

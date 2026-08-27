@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "@/lib/i18n/context"
 import { useAppStore } from "@/stores"
 
 interface EndGameDialogProps {
@@ -26,6 +27,7 @@ export function EndGameDialog({
   onOpenChange,
   onConfirmed,
 }: EndGameDialogProps) {
+  const { t } = useTranslation()
   const finishGame = useAppStore((state) => state.finishGame)
 
   function handleConfirm() {
@@ -42,15 +44,14 @@ export function EndGameDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>End game now?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Scoring stops here. You can still review stats and share results from
-            this session.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("game.endGameNowTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("game.endGameNowBody")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Keep playing</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>End game</AlertDialogAction>
+          <AlertDialogCancel>{t("game.keepPlaying")}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm}>
+            {t("game.endGameAction")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -63,15 +64,16 @@ interface EndGameButtonProps extends ComponentProps<typeof Button> {
 
 export function EndGameButton({
   onConfirmed,
-  children = "End game",
+  children,
   ...props
 }: EndGameButtonProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <Button type="button" {...props} onClick={() => setOpen(true)}>
-        {children}
+        {children ?? t("game.endGame")}
       </Button>
       <EndGameDialog
         open={open}

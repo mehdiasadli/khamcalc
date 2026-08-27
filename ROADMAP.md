@@ -262,12 +262,12 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
 
 | #    | Item                                                                                    | Status |
 | ---- | --------------------------------------------------------------------------------------- | ------ |
-| 13.1 | **i18n foundation** — e.g. `next-intl` or lightweight dictionary + locale in store/URL | ⬜     |
-| 13.2 | **Language picker** — setup (and persist preference in localStorage)                    | ⬜     |
-| 13.3 | **Phase 1 locales** — **EN + AZ + RU** (locked)                                           | ⬜     |
-| 13.4 | **Phase 2 locales** — FR, TR, DE, ES, IT, PT, JA, ZH, KO                                  | ⬜     |
-| 13.5 | **Format helpers** — dates, numbers, `%` via `Intl`; share summary localized            | ⬜     |
-| 13.6 | **RTL / plural rules** — only if adding Arabic etc. later                               | ⬜     |
+| 13.1 | **i18n foundation** — lightweight dictionary + `I18nProvider` + locale in store | ✅     |
+| 13.2 | **Language picker** — setup (and persist preference in localStorage)                    | ✅     |
+| 13.3 | **Phase 1 locales** — **EN + AZ + RU** (locked)                                           | ✅     |
+| 13.4 | **Phase 2 locales** — FR, TR, DE, ES, IT, PT, JA, ZH, KO — deferred                       | —      |
+| 13.5 | **Format helpers** — dates via `date-fns`, numbers/`%` via `Intl`; share summary localized | ✅     |
+| 13.6 | **RTL / plural rules** — deferred (no Arabic in phase 1)                                  | —      |
 
 **Deps:** `next-intl` (or agreed lib), extract all user-visible strings.
 
@@ -410,6 +410,7 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Updates 12–19 drafted from next-items list (rebrand, i18n, export, heatmaps, etc.) |
 | 2026-08-27 | Grill-me locked: TriviScore, EN/AZ/RU, JSON-only, GA4, config randomize, scroll heatmaps, keep persist key |
 | 2026-08-27 | Update 12 complete — TriviScore rebrand, PWA icons regenerated, metadata and share copy updated |
+| 2026-08-27 | Update 13 complete — custom i18n (EN/AZ/RU), language picker, date-fns duration formatting |
 
 ---
 

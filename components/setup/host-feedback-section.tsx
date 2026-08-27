@@ -8,16 +8,16 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { HostFeedbackSettings } from "@/components/host-feedback/host-feedback-settings"
+import { useTranslation } from "@/lib/i18n/context"
 
 export function HostFeedbackSection() {
+  const { t } = useTranslation()
+
   return (
     <Card size="sm">
       <CardHeader>
-        <CardTitle>Host feedback</CardTitle>
-        <CardDescription>
-          Optional sounds and vibrations while you score. Both stay off until you
-          turn them on.
-        </CardDescription>
+        <CardTitle>{t("hostFeedback.title")}</CardTitle>
+        <CardDescription>{t("setup.hostFeedbackHint")}</CardDescription>
       </CardHeader>
       <CardContent>
         <HostFeedbackSettings />

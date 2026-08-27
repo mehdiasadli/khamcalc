@@ -34,6 +34,7 @@ import { PlayerRenameDialog } from "@/components/player-rename-dialog"
 import { SortablePlayerCard } from "@/components/game/sortable-player-card"
 import { getPlayerAchievements } from "@/lib/achievements"
 import { sortAchievements } from "@/lib/achievement-display"
+import { useTranslation } from "@/lib/i18n/context"
 import { getActivePlayers } from "@/lib/players"
 import {
   getQuestionCorrectPoints,
@@ -110,6 +111,7 @@ function useRankedGamePlayers() {
 }
 
 export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
+  const { t } = useTranslation()
   const game = useAppStore((state) => state.game)
   const allPlayers = useAppStore((state) => state.players)
   const activePlayers = getActivePlayers(allPlayers)
@@ -312,45 +314,49 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirmDialog?.type === "undo-correct"
-                ? "Undo correct answer?"
+                ? t("game.undoCorrectTitle")
                 : confirmDialog?.type === "undo-incorrect"
-                  ? "Undo incorrect answer?"
-                  : "Remove player?"}
+                  ? t("game.undoIncorrectTitle")
+                  : t("players.removeConfirmTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog?.type === "undo-correct" ? (
-                <>
-                  This removes {formatScore(questionPoints)} points from{" "}
-                  <span className="text-foreground">{confirmTarget?.name}</span>.
-                </>
+                t("game.undoCorrectBody", {
+                  points: formatScore(questionPoints),
+                  name: confirmTarget?.name ?? "",
+                })
               ) : null}
               {confirmDialog?.type === "undo-incorrect" ? (
                 <>
-                  <span className="text-foreground">{confirmTarget?.name}</span>{" "}
-                  will be eligible again
-                  {wrongPoints > 0
-                    ? ` and +${formatScore(wrongPoints)} will be restored`
-                    : ""}
-                  .
+                  {t("game.undoIncorrectBody", {
+                    name: confirmTarget?.name ?? "",
+                    restore:
+                      wrongPoints > 0
+                        ? t("game.undoIncorrectRestore", {
+                            points: formatScore(wrongPoints),
+                          })
+                        : "",
+                  })}
                 </>
               ) : null}
               {confirmDialog?.type === "remove" ? (
-                <>
-                  <span className="text-foreground">{confirmTarget?.name}</span>{" "}
-                  will be removed from scoring. Their stats stay in this game.
-                </>
+                t("players.removeConfirmBody", {
+                  name: confirmTarget?.name ?? "",
+                })
               ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant={
                 confirmDialog?.type === "remove" ? "destructive" : "default"
               }
               onClick={handleConfirmDialog}
             >
-              {confirmDialog?.type === "remove" ? "Remove" : "Confirm"}
+              {confirmDialog?.type === "remove"
+                ? t("common.remove")
+                : t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

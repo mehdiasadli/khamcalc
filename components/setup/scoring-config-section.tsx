@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { useTranslation } from "@/lib/i18n/context"
 import { getQuestionCorrectPoints } from "@/lib/scoring"
 import type {
   TScoringConfig,
@@ -26,14 +27,6 @@ import type {
 } from "@/schemas/scoring.schema"
 import { useAppStore } from "@/stores"
 import { ChevronDownIcon, PlusIcon, Trash2Icon } from "lucide-react"
-import { useState } from "react"
-
-const WRONG_DEDUCTION_DESCRIPTIONS: Record<TWrongDeductionMode, string> = {
-  none: "Marking someone wrong does not change their score.",
-  question_value:
-    "They lose exactly what the current question was worth — same as a correct answer, but subtracted.",
-  fixed: "Every wrong mark costs the same amount, no matter what the question is worth.",
-}
 
 interface ScoringNumberFieldProps {
   id: string
@@ -99,6 +92,7 @@ function ModeButton({
 }
 
 export function ScoringConfigSection() {
+  const { t } = useTranslation()
   const config = useAppStore((state) => state.config)
   const game = useAppStore((state) => state.game)
   const setConfig = useAppStore((state) => state.setConfig)
@@ -106,6 +100,12 @@ export function ScoringConfigSection() {
 
   const configLocked = game?.status === "playing"
   const scoring = config.scoring
+
+  const wrongDeductionDescriptions: Record<TWrongDeductionMode, string> = {
+    none: t("scoring.wrongDescNone"),
+    question_value: t("scoring.wrongDescQuestionValue"),
+    fixed: t("scoring.wrongDescFixed"),
+  }
 
   function updateScoring(partial: Partial<TScoringConfig>) {
     setConfig({
@@ -126,36 +126,28 @@ export function ScoringConfigSection() {
   return (
     <Card size="sm">
       <CardHeader>
-        <CardTitle>Scoring</CardTitle>
-        <CardDescription>
-          Set how many points players gain for correct answers and lose for wrong
-          ones. These rules lock when you start a game.
-        </CardDescription>
+        <CardTitle>{t("scoring.title")}</CardTitle>
+        <CardDescription>{t("scoring.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         {configLocked ? (
-          <p className="text-sm text-muted-foreground">
-            Scoring is locked while a game is in progress.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("scoring.locked")}</p>
         ) : null}
 
         <Field>
-          <FieldLabel>Point ladder</FieldLabel>
-          <FieldDescription>
-            Flat keeps every question in a round worth the same. Linear increases
-            the value for Q2, Q3, and so on, then resets at the next round.
-          </FieldDescription>
+          <FieldLabel>{t("scoring.pointLadder")}</FieldLabel>
+          <FieldDescription>{t("scoring.pointLadderHint")}</FieldDescription>
           <div className="flex flex-wrap gap-2 pt-1">
             <ModeButton
               active={scoring.mode === "flat"}
               disabled={configLocked}
-              label="Flat"
+              label={t("scoring.flat")}
               onClick={() => updateScoring({ mode: "flat" as TScoringMode })}
             />
             <ModeButton
               active={scoring.mode === "linear"}
               disabled={configLocked}
-              label="Linear ladder"
+              label={t("scoring.linear")}
               onClick={() => updateScoring({ mode: "linear" as TScoringMode })}
             />
           </div>
@@ -164,8 +156,8 @@ export function ScoringConfigSection() {
         <FieldGroup>
           <ScoringNumberField
             id="scoring-base"
-            label="Starting value (Q1)"
-            description="Points for the first question of Round 1. Later questions and rounds build on this."
+            label={t("scoring.basePoints")}
+            description={t("scoring.basePointsHint")}
             value={scoring.basePoints}
             min={1}
             disabled={configLocked}
@@ -175,8 +167,8 @@ export function ScoringConfigSection() {
           {scoring.mode === "linear" ? (
             <ScoringNumberField
               id="scoring-increment-question"
-              label="Step up each question"
-              description="Added for every next question in the same round. Example: start 100, step 100 → Q1=100, Q2=200, Q3=300. Resets each round."
+              label={t("scoring.incrementQuestion")}
+              description={t("scoring.incrementQuestionHint")}
               value={scoring.incrementPerQuestion}
               min={0}
               disabled={configLocked}
@@ -187,16 +179,16 @@ export function ScoringConfigSection() {
           ) : null}
 
           <Field>
-            <FieldLabel>When someone is wrong</FieldLabel>
+            <FieldLabel>{t("scoring.whenWrong")}</FieldLabel>
             <FieldDescription>
-              {WRONG_DEDUCTION_DESCRIPTIONS[scoring.wrongDeduction]}
+              {wrongDeductionDescriptions[scoring.wrongDeduction]}
             </FieldDescription>
             <div className="flex flex-wrap gap-2 pt-1">
               {(
                 [
-                  ["none", "No penalty"],
-                  ["question_value", "Lose question value"],
-                  ["fixed", "Fixed penalty"],
+                  ["none", t("scoring.wrongNone")],
+                  ["question_value", t("scoring.wrongQuestionValue")],
+                  ["fixed", t("scoring.wrongFixed")],
                 ] as const
               ).map(([mode, label]) => (
                 <ModeButton
@@ -217,8 +209,8 @@ export function ScoringConfigSection() {
           {scoring.wrongDeduction === "fixed" ? (
             <ScoringNumberField
               id="scoring-wrong-fixed"
-              label="Fixed penalty amount"
-              description="Points subtracted every time you mark a player incorrect."
+              label={t("scoring.fixedPenalty")}
+              description={t("scoring.fixedPenaltyHint")}
               value={scoring.wrongFixedAmount}
               min={1}
               disabled={configLocked}
@@ -232,12 +224,9 @@ export function ScoringConfigSection() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <FieldLabel htmlFor="scoring-negative">
-                  Scores can go below zero
+                  {t("scoring.allowNegative")}
                 </FieldLabel>
-                <FieldDescription>
-                  When off, a player&apos;s total never drops below 0 even if
-                  wrong answers would cost more than they have.
-                </FieldDescription>
+                <FieldDescription>{t("scoring.allowNegativeHint")}</FieldDescription>
               </div>
               <Switch
                 id="scoring-negative"
@@ -254,11 +243,10 @@ export function ScoringConfigSection() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <FieldLabel htmlFor="scoring-show-value">
-                  Show points in the game header
+                  {t("scoring.showQuestionValue")}
                 </FieldLabel>
                 <FieldDescription>
-                  Displays what the current question is worth (and the wrong
-                  penalty, if any) under the round counter.
+                  {t("scoring.showQuestionValueHint")}
                 </FieldDescription>
               </div>
               <Switch
@@ -275,10 +263,10 @@ export function ScoringConfigSection() {
 
         <div className="rounded-2xl border border-border/70 bg-muted/20 px-3 py-2">
           <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
-            Round 1 preview
+            {t("scoring.previewTitle")}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Correct-answer values for questions 1–5 with your current settings.
+            {t("scoring.previewHint")}
           </p>
           <p className="mt-1 font-mono text-sm tabular-nums">
             {previewValues.map((value, index) => `Q${index + 1}=${value}`).join(" · ")}
@@ -292,7 +280,7 @@ export function ScoringConfigSection() {
             disabled={configLocked}
             onClick={() => setAdvancedOpen((open) => !open)}
           >
-            Advanced scoring
+            {t("scoring.advanced")}
             <ChevronDownIcon
               className={`size-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`}
             />
@@ -302,8 +290,8 @@ export function ScoringConfigSection() {
             <FieldGroup className="pt-2">
               <ScoringNumberField
                 id="scoring-increment-round"
-                label="Bonus added each round"
-                description="Extra points added to the base before anything else, once per round. Round 2 gets +1× this, Round 3 gets +2× this, etc."
+                label={t("scoring.incrementRound")}
+                description={t("scoring.incrementRoundHint")}
                 value={scoring.incrementPerRound}
                 min={0}
                 disabled={configLocked}
@@ -313,13 +301,9 @@ export function ScoringConfigSection() {
               />
               <Field>
                 <FieldLabel htmlFor="scoring-round-multiplier">
-                  Round multiplier
+                  {t("scoring.roundMultiplier")}
                 </FieldLabel>
-                <FieldDescription>
-                  Makes later rounds worth more. Round 1 uses ×1, Round 2 uses
-                  ×multiplier, Round 3 uses ×multiplier², and so on. Keep at 1
-                  if every round should feel the same.
-                </FieldDescription>
+                <FieldDescription>{t("scoring.roundMultiplierHint")}</FieldDescription>
                 <Input
                   id="scoring-round-multiplier"
                   type="number"
@@ -336,17 +320,16 @@ export function ScoringConfigSection() {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="scoring-min-score">Score floor</FieldLabel>
-                <FieldDescription>
-                  The lowest total a player can reach. Only applies when
-                  negative scores are allowed. Leave empty for no limit.
-                </FieldDescription>
+                <FieldLabel htmlFor="scoring-min-score">
+                  {t("scoring.scoreFloor")}
+                </FieldLabel>
+                <FieldDescription>{t("scoring.scoreFloorHint")}</FieldDescription>
                 <Input
                   id="scoring-min-score"
                   type="number"
                   disabled={configLocked || !scoring.allowNegativeScores}
                   value={scoring.minScore ?? ""}
-                  placeholder="No floor"
+                  placeholder={t("scoring.noFloor")}
                   onChange={(event) => {
                     const raw = event.target.value.trim()
                     updateScoring({
@@ -359,7 +342,7 @@ export function ScoringConfigSection() {
 
               <Field>
                 <div className="flex items-center justify-between gap-3">
-                  <FieldLabel>Question overrides</FieldLabel>
+                  <FieldLabel>{t("scoring.overrides")}</FieldLabel>
                   <Button
                     type="button"
                     size="xs"
@@ -379,18 +362,13 @@ export function ScoringConfigSection() {
                     }
                   >
                     <PlusIcon data-icon="inline-start" />
-                    Add override
+                    {t("scoring.addOverride")}
                   </Button>
                 </div>
-                <FieldDescription>
-                  Pin exact point values to a specific round and question —
-                  useful for finales or special rounds. Overrides replace the
-                  formula for that slot.
-                </FieldDescription>
+                <FieldDescription>{t("scoring.overridesHint")}</FieldDescription>
                 {scoring.overrides.length > 0 ? (
                   <p className="pt-1 text-xs text-muted-foreground">
-                    Columns: round · question · correct pts · wrong pts (leave
-                    wrong blank to use your penalty rule).
+                    {t("scoring.overridesColumns")}
                   </p>
                 ) : null}
                 <div className="flex flex-col gap-2 pt-2">
@@ -404,7 +382,7 @@ export function ScoringConfigSection() {
                         min={1}
                         disabled={configLocked}
                         value={override.round}
-                        aria-label="Override round"
+                        aria-label={t("scoring.overrideRound")}
                         onChange={(event) => {
                           const next = [...scoring.overrides]
                           next[index] = {
@@ -419,7 +397,7 @@ export function ScoringConfigSection() {
                         min={1}
                         disabled={configLocked}
                         value={override.question}
-                        aria-label="Override question"
+                        aria-label={t("scoring.overrideQuestion")}
                         onChange={(event) => {
                           const next = [...scoring.overrides]
                           next[index] = {
@@ -433,7 +411,7 @@ export function ScoringConfigSection() {
                         type="number"
                         disabled={configLocked}
                         value={override.correctPoints}
-                        aria-label="Correct points"
+                        aria-label={t("scoring.correctPoints")}
                         onChange={(event) => {
                           const next = [...scoring.overrides]
                           next[index] = {
@@ -448,8 +426,8 @@ export function ScoringConfigSection() {
                         type="number"
                         disabled={configLocked}
                         value={override.wrongPoints ?? ""}
-                        placeholder="Auto"
-                        aria-label="Wrong points"
+                        placeholder={t("common.auto")}
+                        aria-label={t("scoring.wrongPoints")}
                         onChange={(event) => {
                           const raw = event.target.value.trim()
                           const next = [...scoring.overrides]
@@ -468,7 +446,7 @@ export function ScoringConfigSection() {
                         size="icon-sm"
                         variant="ghost"
                         disabled={configLocked}
-                        aria-label="Remove override"
+                        aria-label={t("scoring.removeOverride")}
                         onClick={() =>
                           updateScoring({
                             overrides: scoring.overrides.filter(

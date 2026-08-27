@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,27 +13,51 @@ import {
 import {
   copyShareText,
   getShareHref,
-  SHARE_TARGETS,
+  buildTelegramShareUrl,
+  buildTwitterShareUrl,
+  buildWhatsAppShareUrl,
   type TShareTarget,
 } from "@/lib/share"
+import { getShareTargets } from "@/lib/i18n/helpers"
+import { useTranslation } from "@/lib/i18n/context"
 import { Share2Icon } from "lucide-react"
 
 interface StatsShareActionsProps {
   summary: string
 }
 
+function toShareTarget(
+  target: ReturnType<typeof getShareTargets>[number]
+): TShareTarget {
+  const hrefById = {
+    whatsapp: buildWhatsAppShareUrl,
+    telegram: buildTelegramShareUrl,
+    twitter: buildTwitterShareUrl,
+  } as const
+
+  return {
+    id: target.id,
+    label: target.label,
+    description: target.description,
+    href: target.id in hrefById ? hrefById[target.id as keyof typeof hrefById] : undefined,
+    copiesOnly: target.copiesOnly,
+  }
+}
+
 export function StatsShareActions({ summary }: StatsShareActionsProps) {
+  const { t } = useTranslation()
+  const shareTargets = useMemo(() => getShareTargets(t).map(toShareTarget), [t])
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [copyLabel, setCopyLabel] = useState("Copy")
+  const [copyLabel, setCopyLabel] = useState(t("common.copy"))
 
   const handleCopy = useCallback(async () => {
     const copied = await copyShareText(summary)
-    setCopyLabel(copied ? "Copied!" : "Copy failed")
+    setCopyLabel(copied ? t("common.copied") : t("common.copyFailed"))
 
     window.setTimeout(() => {
-      setCopyLabel("Copy")
+      setCopyLabel(t("common.copy"))
     }, 2000)
-  }, [summary])
+  }, [summary, t])
 
   async function handleTargetClick(target: TShareTarget) {
     if (target.copiesOnly) {
@@ -57,7 +81,7 @@ export function StatsShareActions({ summary }: StatsShareActionsProps) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label="Share summary"
+        aria-label={t("stats.shareSummary")}
         onClick={() => setSheetOpen(true)}
       >
         <Share2Icon />
@@ -66,14 +90,12 @@ export function StatsShareActions({ summary }: StatsShareActionsProps) {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl">
           <SheetHeader>
-            <SheetTitle>Share game summary</SheetTitle>
-            <SheetDescription>
-              Copy or send scores and stats to your group chat.
-            </SheetDescription>
+            <SheetTitle>{t("stats.shareSheetTitle")}</SheetTitle>
+            <SheetDescription>{t("stats.shareSheetDescription")}</SheetDescription>
           </SheetHeader>
 
           <div className="flex flex-col gap-2 px-6 pb-6">
-            {SHARE_TARGETS.map((target) => (
+            {shareTargets.map((target) => (
               <Button
                 key={target.id}
                 type="button"
@@ -83,7 +105,7 @@ export function StatsShareActions({ summary }: StatsShareActionsProps) {
               >
                 <span>{target.label}</span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {target.id === "copy" && copyLabel !== "Copy"
+                  {target.id === "copy" && copyLabel !== t("common.copy")
                     ? copyLabel
                     : target.description}
                 </span>

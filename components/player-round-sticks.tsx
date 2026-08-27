@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 import type { TRoundStickState } from "@/lib/round-sticks"
 
@@ -16,31 +17,32 @@ interface PlayerRoundSticksProps {
   className?: string
 }
 
-function describeSticks(sticks: TRoundStickState[]): string {
+export function PlayerRoundSticks({
+  sticks,
+  className,
+}: PlayerRoundSticksProps) {
+  const { t } = useTranslation()
+
   const correct = sticks.filter((stick) => stick === "correct").length
   const wrong = sticks.filter((stick) => stick === "wrong").length
   const skipped = sticks.filter((stick) => stick === "skipped").length
   const remaining = sticks.filter((stick) => stick === "upcoming").length
 
-  const parts = [
-    correct > 0 ? `${correct} correct` : null,
-    wrong > 0 ? `${wrong} wrong` : null,
-    skipped > 0 ? `${skipped} skipped` : null,
-    remaining > 0 ? `${remaining} left` : null,
-  ].filter(Boolean)
+  const ariaLabel =
+    correct + wrong + skipped + remaining > 0
+      ? t("players.answerStats", {
+          correct,
+          wrong,
+          skipped,
+          remaining,
+        })
+      : t("players.roundProgress")
 
-  return parts.length > 0 ? parts.join(", ") : "Round progress"
-}
-
-export function PlayerRoundSticks({
-  sticks,
-  className,
-}: PlayerRoundSticksProps) {
   return (
     <div
       className={cn("flex items-stretch gap-px", className)}
       role="img"
-      aria-label={describeSticks(sticks)}
+      aria-label={ariaLabel}
     >
       {sticks.map((stick, index) => (
         <span

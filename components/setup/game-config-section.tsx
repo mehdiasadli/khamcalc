@@ -18,6 +18,10 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { configMatches } from "@/lib/config"
 import { configPresets } from "@/lib/config-presets"
+import type { TConfigPresetName } from "@/lib/config-presets"
+import { detectPresetKey } from "@/lib/i18n/helpers"
+import { useTranslation } from "@/lib/i18n/context"
+import { getPresetDescription, getPresetLabel } from "@/lib/i18n/presets"
 import type { TGameConfig } from "@/schemas/config.schema"
 import { useAppStore } from "@/stores"
 
@@ -25,6 +29,7 @@ interface ConfigNumberFieldProps {
   id: string
   label: string
   description: string
+  noLimitLabel: string
   value: number | null
   disabled?: boolean
   onChange: (value: number | null) => void
@@ -34,6 +39,7 @@ function ConfigNumberField({
   id,
   label,
   description,
+  noLimitLabel,
   value,
   disabled = false,
   onChange,
@@ -49,7 +55,7 @@ function ConfigNumberField({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <FieldLabel htmlFor={`${id}-unlimited`} className="text-xs">
-            No limit
+            {noLimitLabel}
           </FieldLabel>
           <Switch
             id={`${id}-unlimited`}
@@ -80,12 +86,14 @@ function ConfigNumberField({
 }
 
 export function GameConfigSection() {
+  const { t } = useTranslation()
   const config = useAppStore((state) => state.config)
   const game = useAppStore((state) => state.game)
   const setConfig = useAppStore((state) => state.setConfig)
   const applyConfigPreset = useAppStore((state) => state.applyConfigPreset)
 
   const configLocked = game?.status === "playing"
+  const activePresetKey = detectPresetKey(config)
 
   function updateConfig(partial: Partial<TGameConfig>) {
     try {
@@ -98,22 +106,18 @@ export function GameConfigSection() {
   return (
     <Card size="sm">
       <CardHeader>
-        <CardTitle>Game config</CardTitle>
-        <CardDescription>
-          Set round limits or pick a preset for common formats.
-        </CardDescription>
+        <CardTitle>{t("gameConfig.title")}</CardTitle>
+        <CardDescription>{t("gameConfig.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         {configLocked ? (
-          <p className="text-sm text-muted-foreground">
-            Config is locked while a game is in progress. Finish or reset the
-            game to change settings.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("gameConfig.locked")}</p>
         ) : null}
 
         <div className="flex flex-wrap gap-2">
           {Object.entries(configPresets).map(([key, preset]) => {
             const active = configMatches(config, preset.config)
+            const presetKey = key as TConfigPresetName
 
             return (
               <Button
@@ -124,29 +128,24 @@ export function GameConfigSection() {
                 disabled={configLocked}
                 onClick={() => applyConfigPreset(preset.config)}
               >
-                {preset.name}
+                {getPresetLabel(t, presetKey)}
               </Button>
             )
           })}
         </div>
 
-        {Object.values(configPresets).some((preset) =>
-          configMatches(config, preset.config)
-        ) ? (
+        {activePresetKey ? (
           <p className="text-xs text-muted-foreground">
-            {
-              Object.values(configPresets).find((preset) =>
-                configMatches(config, preset.config)
-              )?.description
-            }
+            {getPresetDescription(t, activePresetKey)}
           </p>
         ) : null}
 
         <FieldGroup>
           <ConfigNumberField
             id="questions-per-round"
-            label="Questions per round"
-            description="How many questions before moving to the next round."
+            label={t("gameConfig.questionsPerRound")}
+            description={t("gameConfig.questionsPerRoundHint")}
+            noLimitLabel={t("common.noLimit")}
             value={config.questionsPerRound}
             disabled={configLocked}
             onChange={(questionsPerRound) =>
@@ -155,8 +154,9 @@ export function GameConfigSection() {
           />
           <ConfigNumberField
             id="max-rounds"
-            label="Max rounds"
-            description="Stop after this many rounds, or leave unlimited."
+            label={t("gameConfig.maxRounds")}
+            description={t("gameConfig.maxRoundsHint")}
+            noLimitLabel={t("common.noLimit")}
             value={config.maxRounds}
             disabled={configLocked}
             onChange={(maxRounds) => updateConfig({ maxRounds })}

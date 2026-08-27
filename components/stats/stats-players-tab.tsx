@@ -2,7 +2,7 @@
 
 import type { TGameAnalytics } from "@/lib/analytics"
 import { formatScore, formatPointDelta } from "@/lib/scoring-format"
-import { formatDecimal, formatPercent } from "@/lib/stats-format"
+import { useFormat, useTranslation } from "@/lib/i18n/context"
 
 import { StatsStreakChart } from "@/components/stats/stats-streak-chart"
 
@@ -29,11 +29,13 @@ function StatRow({ label, value }: { label: string; value: string }) {
 }
 
 export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
+  const { t } = useTranslation()
+  const { formatDecimal, formatPercent } = useFormat()
   const players = [...analytics.players].sort((a, b) => a.rank - b.rank)
 
   if (players.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">No players in this game.</p>
+      <p className="text-sm text-muted-foreground">{t("stats.noPlayerStats")}</p>
     )
   }
 
@@ -44,7 +46,9 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
       {players.map((player) => {
         const roundPoints = Object.entries(player.pointsPerRound)
           .filter(([, points]) => points !== 0)
-          .map(([round, points]) => `R${round}: ${formatPointDelta(points)}`)
+          .map(([round, points]) =>
+            `${t("common.roundShort", { round })}: ${formatPointDelta(points)}`
+          )
           .join(" · ")
 
         return (
@@ -54,8 +58,8 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
                 <div className="flex min-w-0 flex-col gap-1">
                   <CardTitle className="truncate">{player.name}</CardTitle>
                   <CardDescription>
-                    Rank #{player.rank}
-                    {player.removed ? " · Removed from scoring" : ""}
+                    {t("players.rank", { rank: player.rank })}
+                    {player.removed ? t("players.removedFromScoring") : ""}
                   </CardDescription>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
@@ -63,7 +67,7 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
                     {formatScore(player.score)}
                   </span>
                   <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
-                    pts
+                    {t("common.pts")}
                   </span>
                 </div>
               </div>
@@ -71,27 +75,39 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
             <CardContent className="flex flex-col gap-2">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary">
-                  {player.correctCount} correct
+                  {t("players.correctBadge", { count: player.correctCount })}
                 </Badge>
-                <Badge variant="outline">{player.wrongCount} wrong</Badge>
+                <Badge variant="outline">
+                  {t("players.wrongBadge", { count: player.wrongCount })}
+                </Badge>
                 {player.longestCorrectStreak > 0 ? (
                   <Badge variant="outline">
-                    Streak {player.longestCorrectStreak}
+                    {t("stats.streakBadgeShort", {
+                      count: player.longestCorrectStreak,
+                    })}
                   </Badge>
                 ) : null}
                 {player.roundsLed > 0 ? (
-                  <Badge variant="outline">Led {player.roundsLed} rounds</Badge>
+                  <Badge variant="outline">
+                    {t("stats.ledRounds", { count: player.roundsLed })}
+                  </Badge>
                 ) : null}
               </div>
 
-              <StatRow label="Accuracy" value={formatPercent(player.accuracy)} />
               <StatRow
-                label="Participation"
+                label={t("stats.accuracy")}
+                value={formatPercent(player.accuracy)}
+              />
+              <StatRow
+                label={t("stats.participation")}
                 value={formatPercent(player.participationRate)}
               />
-              <StatRow label="Idle questions" value={String(player.idleQuestionCount)} />
               <StatRow
-                label="Wrong / correct ratio"
+                label={t("players.idleQuestions")}
+                value={String(player.idleQuestionCount)}
+              />
+              <StatRow
+                label={t("players.wrongCorrectRatio")}
                 value={
                   player.wrongBeforeCorrectRatio === null
                     ? "—"
@@ -99,11 +115,11 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
                 }
               />
               <StatRow
-                label="Comeback (last 2 rounds)"
+                label={t("players.comeback")}
                 value={
                   player.comebackDelta === null
                     ? "—"
-                    : `${formatPointDelta(player.comebackDelta)} pts`
+                    : `${formatPointDelta(player.comebackDelta)} ${t("common.pts")}`
                 }
               />
               {roundPoints ? (

@@ -603,6 +603,9 @@ export const useAppStore = create<TAppStore>()(
           hostPreferences: {
             ...currentState.hostPreferences,
             ...persisted.hostPreferences,
+            locale:
+              persisted.hostPreferences?.locale ??
+              currentState.hostPreferences.locale,
           },
           players: persisted.players ?? currentState.players,
           playerOrder: persisted.playerOrder ?? currentState.playerOrder,

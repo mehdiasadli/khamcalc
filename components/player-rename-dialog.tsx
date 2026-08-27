@@ -18,8 +18,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useTranslation } from "@/lib/i18n/context"
+import { validatePlayerName } from "@/lib/i18n/validation"
 import { isDuplicatePlayerName } from "@/lib/players"
-import { PlayerNameSchema } from "@/schemas/player.schema"
 
 interface PlayerRenameDialogProps {
   open: boolean
@@ -45,30 +46,31 @@ function PlayerRenameForm({
   onCancel,
   onConfirm,
 }: PlayerRenameFormProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState(playerName)
   const [error, setError] = useState<string | null>(null)
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const parsed = PlayerNameSchema.safeParse(name)
+    const parsed = validatePlayerName(name, t)
 
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Invalid name")
+    if (!parsed.ok) {
+      setError(parsed.error)
       return
     }
 
-    if (parsed.data === playerName) {
+    if (parsed.value === playerName) {
       onCancel()
       return
     }
 
-    if (isDuplicatePlayerName(existingNames, parsed.data, playerId)) {
-      setError("A player with this name already exists")
+    if (isDuplicatePlayerName(existingNames, parsed.value, playerId)) {
+      setError(t("validation.nameDuplicate"))
       return
     }
 
-    onConfirm(playerId, parsed.data)
+    onConfirm(playerId, parsed.value)
     onCancel()
   }
 
@@ -76,7 +78,7 @@ function PlayerRenameForm({
     <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field data-invalid={!!error}>
-          <FieldLabel htmlFor="player-rename">Name</FieldLabel>
+          <FieldLabel htmlFor="player-rename">{t("players.nameLabel")}</FieldLabel>
           <Input
             id="player-rename"
             value={name}
@@ -93,9 +95,9 @@ function PlayerRenameForm({
 
       <DialogFooter className="mt-6">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("common.cancel")}
         </Button>
-        <Button type="submit">Save</Button>
+        <Button type="submit">{t("common.save")}</Button>
       </DialogFooter>
     </form>
   )
@@ -109,14 +111,14 @@ export function PlayerRenameDialog({
   existingNames,
   onConfirm,
 }: PlayerRenameDialogProps) {
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Rename player</DialogTitle>
-          <DialogDescription>
-            Update how this player appears on the scoreboard.
-          </DialogDescription>
+          <DialogTitle>{t("players.renameTitle")}</DialogTitle>
+          <DialogDescription>{t("players.renameScoreboardHint")}</DialogDescription>
         </DialogHeader>
 
         {open && playerId ? (

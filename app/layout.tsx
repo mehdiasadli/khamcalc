@@ -4,7 +4,6 @@ import type { Viewport } from "next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { Providers } from "@/components/providers"
-import { PwaInstallPrompt } from "@/components/pwa/install-prompt"
 import { createRootMetadata, rootViewport } from "@/lib/seo/metadata"
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" })
@@ -36,7 +35,6 @@ export default function RootLayout({
     >
       <body>
         <Providers>{children}</Providers>
-        <PwaInstallPrompt />
       </body>
     </html>
   )

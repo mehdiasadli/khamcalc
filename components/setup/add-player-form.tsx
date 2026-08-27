@@ -11,8 +11,10 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { translateStoreError } from "@/lib/i18n/errors"
+import { useTranslation } from "@/lib/i18n/context"
+import { validatePlayerName } from "@/lib/i18n/validation"
 import { getActivePlayerCount, MAX_PLAYERS } from "@/lib/players"
-import { PlayerNameSchema } from "@/schemas/player.schema"
 import { useAppStore } from "@/stores"
 import { PlusIcon } from "lucide-react"
 
@@ -21,6 +23,7 @@ interface AddPlayerFormProps {
 }
 
 export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
+  const { t } = useTranslation()
   const addPlayer = useAppStore((state) => state.addPlayer)
   const players = useAppStore((state) => state.players)
   const playerCount = getActivePlayerCount(players)
@@ -33,24 +36,26 @@ export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
     event.preventDefault()
 
     if (atMax) {
-      setError(`Maximum ${MAX_PLAYERS} players allowed`)
+      setError(t("errors.maxPlayers", { count: MAX_PLAYERS }))
       return
     }
 
-    const parsed = PlayerNameSchema.safeParse(name)
+    const parsed = validatePlayerName(name, t)
 
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Invalid name")
+    if (!parsed.ok) {
+      setError(parsed.error)
       return
     }
 
     try {
-      addPlayer(parsed.data)
+      addPlayer(parsed.value)
       setName("")
       setError(null)
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "Could not add player"
+        nextError instanceof Error
+          ? translateStoreError(nextError.message, t)
+          : t("players.couldNotAdd")
       )
     }
   }
@@ -59,7 +64,7 @@ export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
     <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field data-invalid={!!error}>
-          <FieldLabel htmlFor="add-player">Add player</FieldLabel>
+          <FieldLabel htmlFor="add-player">{t("players.add")}</FieldLabel>
           <div className="flex gap-2">
             <Input
               id="add-player"
@@ -68,7 +73,7 @@ export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
                 setName(event.target.value)
                 setError(null)
               }}
-              placeholder="Player name"
+              placeholder={t("players.placeholder")}
               aria-invalid={!!error}
               disabled={disabled || atMax}
               autoComplete="off"
@@ -77,13 +82,13 @@ export function AddPlayerForm({ disabled = false }: AddPlayerFormProps) {
               type="submit"
               size="icon"
               disabled={disabled || atMax || name.trim().length === 0}
-              aria-label="Add player"
+              aria-label={t("players.add")}
             >
               <PlusIcon data-icon="inline-start" />
             </Button>
           </div>
           <FieldDescription>
-            {playerCount} / {MAX_PLAYERS} players
+            {t("players.count", { count: playerCount, max: MAX_PLAYERS })}
           </FieldDescription>
           <FieldError>{error}</FieldError>
         </Field>

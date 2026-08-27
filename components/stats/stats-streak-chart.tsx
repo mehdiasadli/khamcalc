@@ -18,19 +18,26 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-
-const streakChartConfig = {
-  streak: {
-    label: "Longest streak",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig
+import { useTranslation } from "@/lib/i18n/context"
 
 interface StatsStreakChartProps {
   analytics: TGameAnalytics
 }
 
 export function StatsStreakChart({ analytics }: StatsStreakChartProps) {
+  const { t } = useTranslation()
+
+  const streakChartConfig = useMemo(
+    () =>
+      ({
+        streak: {
+          label: t("stats.longestStreak"),
+          color: "var(--chart-2)",
+        },
+      }) satisfies ChartConfig,
+    [t]
+  )
+
   const data = useMemo(
     () =>
       [...analytics.players]
@@ -47,12 +54,12 @@ export function StatsStreakChart({ analytics }: StatsStreakChartProps) {
     return (
       <Card size="sm" className="ring-foreground/5">
         <CardHeader>
-          <CardTitle>Correct streaks</CardTitle>
-          <CardDescription>Longest consecutive correct answers</CardDescription>
+          <CardTitle>{t("stats.streakChart")}</CardTitle>
+          <CardDescription>{t("stats.streakChartEmpty")}</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No streaks recorded yet.
+            {t("stats.streakChartEmpty")}
           </p>
         </CardContent>
       </Card>
@@ -62,8 +69,8 @@ export function StatsStreakChart({ analytics }: StatsStreakChartProps) {
   return (
     <Card size="sm" className="ring-foreground/5">
       <CardHeader>
-        <CardTitle>Correct streaks</CardTitle>
-        <CardDescription>Longest consecutive correct answers</CardDescription>
+        <CardTitle>{t("stats.streakChart")}</CardTitle>
+        <CardDescription>{t("stats.streakChartEmpty")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer

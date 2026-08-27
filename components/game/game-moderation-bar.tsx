@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "@/lib/i18n/context"
 import {
   useAppStore,
   useCanGoPrevious,
@@ -31,6 +32,7 @@ interface GameModerationBarProps {
 }
 
 export function GameModerationBar({ disabled = false }: GameModerationBarProps) {
+  const { t } = useTranslation()
   const game = useAppStore((state) => state.game)
   const prevQuestion = useAppStore((state) => state.prevQuestion)
   const nextQuestion = useAppStore((state) => state.nextQuestion)
@@ -66,7 +68,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
             onClick={() => handleStoreAction(prevQuestion)}
           >
             <ChevronLeftIcon data-icon="inline-start" />
-            Prev
+            {t("game.prev")}
           </Button>
 
           {shouldShowFinish ? (
@@ -76,7 +78,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
               disabled={disabled}
               onClick={() => handleStoreAction(finishGame)}
             >
-              Finish
+              {t("game.finish")}
               <ChevronRightIcon data-icon="inline-end" />
             </Button>
           ) : (
@@ -87,7 +89,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
               disabled={disabled}
               onClick={() => handleStoreAction(nextQuestion)}
             >
-              Next
+              {t("game.next")}
               <ChevronRightIcon data-icon="inline-end" />
             </Button>
           )}
@@ -97,7 +99,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
             variant="outline"
             size="icon"
             disabled={disabled || !canUndoQuestion}
-            aria-label="Undo current question"
+            aria-label={t("game.undoQuestion")}
             onClick={() => setUndoQuestionOpen(true)}
           >
             <RotateCcwIcon />
@@ -109,14 +111,17 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Undo round {game.currentRound}, question {game.currentQuestion}?
+              {t("game.undoQuestionTitle", {
+                round: game.currentRound,
+                question: game.currentQuestion,
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              All answers and score changes for this question will be removed.
+              {t("game.undoQuestionBody")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
@@ -125,7 +130,7 @@ export function GameModerationBar({ disabled = false }: GameModerationBarProps) 
                 setUndoQuestionOpen(false)
               }}
             >
-              Undo question
+              {t("game.undoQuestionAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

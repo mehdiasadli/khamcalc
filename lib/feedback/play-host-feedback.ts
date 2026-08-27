@@ -9,6 +9,7 @@ export function getEffectiveHostPreferences(
 ): THostPreferences {
   if (prefersReducedMotion()) {
     return {
+      ...preferences,
       soundsEnabled: false,
       hapticsEnabled: false,
     }

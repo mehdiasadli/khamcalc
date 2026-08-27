@@ -6,6 +6,7 @@ import { GripVerticalIcon } from "lucide-react"
 
 import { PlayerCard, type PlayerCardProps } from "@/components/player-card"
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface SortablePlayerCardProps extends PlayerCardProps {
@@ -16,6 +17,7 @@ export function SortablePlayerCard({
   id,
   ...playerCardProps
 }: SortablePlayerCardProps) {
+  const { t } = useTranslation()
   const {
     attributes,
     listeners,
@@ -44,7 +46,7 @@ export function SortablePlayerCard({
             size="icon-xs"
             variant="ghost"
             className="cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
-            aria-label={`Reorder ${playerCardProps.name}`}
+            aria-label={t("players.reorder", { name: playerCardProps.name })}
             {...attributes}
             {...listeners}
           >

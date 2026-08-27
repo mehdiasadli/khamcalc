@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 
@@ -32,6 +33,8 @@ export function SetupPlayerItem({
   onRename,
   onRemove,
 }: SetupPlayerItemProps) {
+  const { t } = useTranslation()
+
   return (
     <div
       className={cn(
@@ -51,7 +54,7 @@ export function SetupPlayerItem({
               type="button"
               size="icon-xs"
               variant="ghost"
-              aria-label={`Actions for ${name}`}
+              aria-label={t("players.playerMenu")}
             />
           }
         >
@@ -61,11 +64,11 @@ export function SetupPlayerItem({
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={onRename}>
               <PencilIcon />
-              Rename
+              {t("players.rename")}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={onRemove}>
               <Trash2Icon />
-              Remove player
+              {t("players.removePlayer")}
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

@@ -21,11 +21,13 @@ import {
 } from "@/components/ui/empty"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
 import { SetupPlayerItem } from "@/components/setup/setup-player-item"
+import { useTranslation } from "@/lib/i18n/context"
 import { getActivePlayers } from "@/lib/players"
 import { useAppStore } from "@/stores"
 import { UsersIcon } from "lucide-react"
 
 export function SetupPlayerList() {
+  const { t } = useTranslation()
   const allPlayers = useAppStore((state) => state.players)
   const players = getActivePlayers(allPlayers)
   const updatePlayer = useAppStore((state) => state.updatePlayer)
@@ -59,10 +61,8 @@ export function SetupPlayerList() {
           <EmptyMedia variant="icon">
             <UsersIcon />
           </EmptyMedia>
-          <EmptyTitle>No players yet</EmptyTitle>
-          <EmptyDescription>
-            Add at least one player to start the game.
-          </EmptyDescription>
+          <EmptyTitle>{t("players.emptyTitle")}</EmptyTitle>
+          <EmptyDescription>{t("players.emptyBody")}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )
@@ -101,17 +101,17 @@ export function SetupPlayerList() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove player?</AlertDialogTitle>
+            <AlertDialogTitle>{t("players.removeListTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="text-foreground">{removePlayerTarget?.name}</span>{" "}
-              will be removed from the player list. You can reuse the name for a
-              new player.
+              {t("players.removeListBody", {
+                name: removePlayerTarget?.name ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={handleRemove}>
-              Remove
+              {t("common.remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

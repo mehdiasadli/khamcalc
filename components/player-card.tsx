@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 import { formatScore } from "@/lib/scoring-format"
 import type { TGameAchievement } from "@/schemas/achievement.schema"
@@ -66,6 +67,8 @@ function PlayerNameLine({
   correctStreak: number
   isWrong: boolean
 }) {
+  const { t } = useTranslation()
+
   return (
     <p
       className={cn(
@@ -78,7 +81,7 @@ function PlayerNameLine({
         <>
           <span className="font-normal text-muted-foreground/55"> • </span>
           <span className="font-mono text-[11px] font-normal tracking-wide text-muted-foreground uppercase tabular-nums">
-            {correctStreak} streak
+            {correctStreak} {t("common.streak")}
           </span>
         </>
       ) : null}
@@ -103,6 +106,7 @@ export function PlayerCard({
   onRename,
   onRemove,
 }: PlayerCardProps) {
+  const { t } = useTranslation()
   const isWrong = status === "wrong" || status === "disabled"
   const isCorrect = status === "correct"
   const hasActions = onCorrect || onIncorrect || onRename || onRemove
@@ -193,7 +197,7 @@ export function PlayerCard({
                 disabled={isWrong}
                 onClick={onCorrect}
               >
-                Correct
+                {t("common.correct")}
               </Button>
             ) : null}
 
@@ -206,7 +210,7 @@ export function PlayerCard({
                 disabled={isCorrect}
                 onClick={onIncorrect}
               >
-                Incorrect
+                {t("common.incorrect")}
               </Button>
             ) : null}
 
@@ -218,7 +222,7 @@ export function PlayerCard({
                       type="button"
                       size="icon-xs"
                       variant="ghost"
-                      aria-label={`Actions for ${name}`}
+                      aria-label={t("players.playerMenu")}
                     />
                   }
                 >
@@ -229,7 +233,7 @@ export function PlayerCard({
                     {onRename ? (
                       <DropdownMenuItem onClick={onRename}>
                         <PencilIcon />
-                        Rename
+                        {t("players.rename")}
                       </DropdownMenuItem>
                     ) : null}
                   </DropdownMenuGroup>
@@ -241,7 +245,7 @@ export function PlayerCard({
                         onClick={onRemove}
                       >
                         <Trash2Icon />
-                        Remove player
+                        {t("players.removePlayer")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   ) : null}

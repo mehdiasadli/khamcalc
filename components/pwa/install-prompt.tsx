@@ -4,6 +4,7 @@ import { DownloadIcon, XIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "@/lib/i18n/context"
 import { PWA_APP_NAME } from "@/lib/pwa/constants"
 
 const DISMISS_KEY = "khamcalc-pwa-install-dismissed"
@@ -23,6 +24,7 @@ function isStandaloneDisplayMode() {
 }
 
 export function PwaInstallPrompt() {
+  const { t } = useTranslation()
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
   const [visible, setVisible] = useState(false)
@@ -85,21 +87,21 @@ export function PwaInstallPrompt() {
     <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
       <div className="pointer-events-auto flex w-full max-w-lg items-center gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-lg backdrop-blur-sm">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">Install {PWA_APP_NAME}</p>
-          <p className="text-xs text-muted-foreground">
-            Add to your home screen for quick access while hosting.
+          <p className="text-sm font-medium">
+            {t("pwa.installTitle", { appName: PWA_APP_NAME })}
           </p>
+          <p className="text-xs text-muted-foreground">{t("pwa.installBody")}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <Button type="button" size="sm" onClick={handleInstall}>
             <DownloadIcon data-icon="inline-start" />
-            Install
+            {t("common.install")}
           </Button>
           <Button
             type="button"
             size="icon-sm"
             variant="ghost"
-            aria-label="Dismiss install prompt"
+            aria-label={t("pwa.dismissInstall")}
             onClick={handleDismiss}
           >
             <XIcon />

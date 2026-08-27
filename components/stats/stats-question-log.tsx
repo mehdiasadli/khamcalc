@@ -11,32 +11,40 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/context"
 
 interface StatsQuestionLogProps {
   analytics: TGameAnalytics
   players: TPlayer[]
 }
 
-function getPlayerName(players: TPlayer[], playerId: string | null) {
-  if (!playerId) return "—"
-  return players.find((player) => player.id === playerId)?.name ?? "Unknown"
-}
-
 export function StatsQuestionLog({
   analytics,
   players,
 }: StatsQuestionLogProps) {
+  const { t } = useTranslation()
   const { questionLog } = analytics
+
+  function getPlayerName(playerId: string | null) {
+    if (!playerId) return "—"
+    return (
+      players.find((player) => player.id === playerId)?.name ?? t("common.unknown")
+    )
+  }
 
   return (
     <Card size="sm" className="ring-foreground/5">
       <CardHeader>
-        <CardTitle>Question log</CardTitle>
-        <CardDescription>{questionLog.length} recorded questions</CardDescription>
+        <CardTitle>{t("stats.questionLog")}</CardTitle>
+        <CardDescription>
+          {questionLog.length} {t("stats.questions").toLowerCase()}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {questionLog.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No questions yet.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("stats.questionLogEmpty")}
+          </p>
         ) : (
           questionLog.map((entry) => (
             <details
@@ -45,7 +53,8 @@ export function StatsQuestionLog({
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm marker:content-none">
                 <span className="font-mono text-xs text-muted-foreground">
-                  R{entry.round} · Q{entry.question}
+                  {t("common.roundShort", { round: entry.round })} ·{" "}
+                  {t("common.questionShort", { question: entry.question })}
                 </span>
                 <span
                   className={cn(
@@ -54,30 +63,28 @@ export function StatsQuestionLog({
                   )}
                 >
                   {entry.skipped
-                    ? "Skipped"
+                    ? t("common.skipped")
                     : entry.correctPlayerId
-                      ? getPlayerName(players, entry.correctPlayerId)
-                      : "Unanswered"}
+                      ? getPlayerName(entry.correctPlayerId)
+                      : t("common.unanswered")}
                 </span>
               </summary>
               <div className="mt-2 flex flex-col gap-1 border-t border-border/60 pt-2 text-sm">
                 {entry.skipped ? (
-                  <p className="text-muted-foreground">
-                    Host skipped without marking answers.
-                  </p>
+                  <p className="text-muted-foreground">{t("stats.hostSkipped")}</p>
                 ) : (
                   <>
                     <p>
-                      Correct:{" "}
+                      {t("stats.correctLabel")}{" "}
                       {entry.correctPlayerId
-                        ? getPlayerName(players, entry.correctPlayerId)
+                        ? getPlayerName(entry.correctPlayerId)
                         : "—"}
                     </p>
                     <p className="text-muted-foreground">
-                      Incorrect:{" "}
+                      {t("stats.incorrectLabel")}{" "}
                       {entry.wrongPlayerIds.length > 0
                         ? entry.wrongPlayerIds
-                            .map((id) => getPlayerName(players, id))
+                            .map((id) => getPlayerName(id))
                             .join(", ")
                         : "—"}
                     </p>

@@ -1,10 +1,6 @@
 "use client"
 
 import type { TGameAnalytics } from "@/lib/analytics"
-import {
-  formatDecimal,
-  formatDuration,
-} from "@/lib/stats-format"
 import type { TPlayer } from "@/schemas/player.schema"
 
 import { StatsLeaderboardTimeline } from "@/components/stats/stats-leaderboard-timeline"
@@ -21,6 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useFormat, useTranslation } from "@/lib/i18n/context"
+import { getLocalizedPresetName } from "@/lib/i18n/helpers"
+import { useAppStore } from "@/stores"
 
 interface StatsOverviewTabProps {
   analytics: TGameAnalytics
@@ -28,55 +27,64 @@ interface StatsOverviewTabProps {
 }
 
 export function StatsOverviewTab({ analytics, players }: StatsOverviewTabProps) {
+  const { t } = useTranslation()
+  const { formatDecimal, formatDuration } = useFormat()
+  const config = useAppStore((state) => state.config)
   const { overview } = analytics
 
   const progressHint = [
-    `Round ${overview.progress.currentRound}`,
-    `Question ${overview.progress.currentQuestion}`,
+    t("game.roundQuestion", {
+      round: overview.progress.currentRound,
+      question: overview.progress.currentQuestion,
+    }),
     overview.progress.maxRounds !== null
-      ? `of ${overview.progress.maxRounds} rounds`
-      : "unlimited rounds",
+      ? t("stats.progressOfRounds", { count: overview.progress.maxRounds })
+      : t("stats.unlimitedRounds"),
     overview.progress.questionsPerRound !== null
-      ? `${overview.progress.questionsPerRound} Q/R`
-      : "unlimited Q/R",
+      ? t("stats.questionsPerRound", {
+          count: overview.progress.questionsPerRound,
+        })
+      : t("stats.unlimitedQuestions"),
   ].join(" · ")
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3">
         <StatsMetricCard
-          label="Questions"
+          label={t("stats.questions")}
           value={String(overview.questionsPlayed)}
-          hint={`${overview.skippedCount} skipped`}
+          hint={t("stats.skippedCount", { count: overview.skippedCount })}
         />
         <StatsMetricCard
-          label="Correct"
+          label={t("stats.correctMarks")}
           value={String(overview.totalCorrect)}
-          hint={`${overview.totalIncorrectMarks} incorrect marks`}
+          hint={t("stats.incorrectMarks", {
+            count: overview.totalIncorrectMarks,
+          })}
         />
         <StatsMetricCard
-          label="Avg wrong / Q"
+          label={t("stats.avgWrong")}
           value={formatDecimal(overview.averageWrongPerQuestion)}
         />
         <StatsMetricCard
-          label="Duration"
+          label={t("stats.duration")}
           value={formatDuration(overview.elapsedMs)}
-          hint={overview.presetName ?? "Custom preset"}
+          hint={getLocalizedPresetName(config, t)}
         />
       </div>
 
       <Card size="sm" className="ring-foreground/5">
         <CardHeader>
-          <CardTitle>Progress</CardTitle>
+          <CardTitle>{t("stats.progress")}</CardTitle>
           <CardDescription>{progressHint}</CardDescription>
         </CardHeader>
         <CardContent>
           <Badge variant="secondary">
             {overview.progress.status === "finished"
-              ? "Finished"
+              ? t("common.finished")
               : overview.progress.status === "playing"
-                ? "Live"
-                : "Idle"}
+                ? t("common.live")
+                : t("common.idle")}
           </Badge>
         </CardContent>
       </Card>

@@ -8,6 +8,7 @@ import { NewGameButton } from "@/components/game/new-game-dialog"
 import { AddPlayerForm } from "@/components/setup/add-player-form"
 import { GameConfigSection } from "@/components/setup/game-config-section"
 import { HostFeedbackSection } from "@/components/setup/host-feedback-section"
+import { LanguagePicker } from "@/components/setup/language-picker"
 import { ScoringConfigSection } from "@/components/setup/scoring-config-section"
 import { SetupFinishedSummary } from "@/components/setup/setup-finished-summary"
 import { SetupPlayerList } from "@/components/setup/setup-player-list"
@@ -20,6 +21,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { translateStoreError } from "@/lib/i18n/errors"
+import { useTranslation } from "@/lib/i18n/context"
 import { MIN_PLAYERS, getActivePlayerCount } from "@/lib/players"
 import { PWA_APP_NAME } from "@/lib/pwa/constants"
 import { cn } from "@/lib/utils"
@@ -28,6 +31,7 @@ import { ArrowRightIcon, BarChart3Icon } from "lucide-react"
 
 export function SetupPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const players = useAppStore((state) => state.players)
   const game = useAppStore((state) => state.game)
   const enterGame = useAppStore((state) => state.enterGame)
@@ -45,7 +49,9 @@ export function SetupPage() {
       router.push("/game")
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "Could not start game"
+        nextError instanceof Error
+          ? translateStoreError(nextError.message, t)
+          : t("setup.couldNotStart")
       )
     }
   }
@@ -55,17 +61,17 @@ export function SetupPage() {
       <header className="flex items-start justify-between gap-3 border-b border-border pb-4">
         <div className="flex min-w-0 flex-col gap-1">
           <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">
-            Setup
+            {t("setup.eyebrow")}
           </p>
           <h1 className="font-heading text-xl font-medium">{PWA_APP_NAME}</h1>
-          <p className="text-sm text-muted-foreground">
-            Configure the game and add players before you start scoring.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("setup.tagline")}</p>
         </div>
         <ThemeToggle className="shrink-0" />
       </header>
 
       <SetupFinishedSummary />
+
+      <LanguagePicker />
 
       <GameConfigSection />
 
@@ -75,10 +81,8 @@ export function SetupPage() {
 
       <Card size="sm">
         <CardHeader>
-          <CardTitle>Players</CardTitle>
-          <CardDescription>
-            Names are saved locally between sessions.
-          </CardDescription>
+          <CardTitle>{t("setup.players")}</CardTitle>
+          <CardDescription>{t("setup.playersHint")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <AddPlayerForm />
@@ -99,7 +103,7 @@ export function SetupPage() {
                 className={cn(buttonVariants({ size: "lg", className: "w-full" }))}
               >
                 <BarChart3Icon data-icon="inline-start" />
-                View stats
+                {t("setup.viewStats")}
               </Link>
               <NewGameButton variant="outline" size="lg" className="w-full" />
             </>
@@ -111,14 +115,14 @@ export function SetupPage() {
               disabled={!canStart}
               onClick={handleStart}
             >
-              {hasActiveGame ? "Continue game" : "Enter game"}
+              {hasActiveGame ? t("setup.continueGame") : t("setup.enterGame")}
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           )}
 
           {!canStart && !hasFinishedGame ? (
             <p className="text-center text-xs text-muted-foreground">
-              Add at least {MIN_PLAYERS} player to start.
+              {t("setup.minPlayers", { count: MIN_PLAYERS })}
             </p>
           ) : null}
         </div>

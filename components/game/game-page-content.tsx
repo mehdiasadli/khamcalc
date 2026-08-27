@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { PlayerCardList } from "@/components/player-card-list"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 import { getQuestionCorrectPoints, getWrongDeductionPoints } from "@/lib/scoring"
 import { formatScore } from "@/lib/scoring-format"
@@ -20,6 +21,7 @@ import { SettingsIcon, BarChart3Icon, FlagIcon } from "lucide-react"
 
 export function GamePageContent() {
   const router = useRouter()
+  const { t } = useTranslation()
   const game = useAppStore((state) => state.game)
 
   useEffect(() => {
@@ -51,24 +53,29 @@ export function GamePageContent() {
           <div className="flex min-w-0 items-center gap-2">
             <div className="flex min-w-0 flex-col gap-0.5">
               <p className="font-mono text-sm tracking-wide tabular-nums">
-                Round {game.currentRound} · Question {game.currentQuestion}
+                {t("game.roundQuestion", {
+                  round: game.currentRound,
+                  question: game.currentQuestion,
+                })}
               </p>
               {game.scoringConfig.showQuestionValue ? (
                 <p className="font-mono text-[11px] tabular-nums text-muted-foreground">
                   {wrongPoints > 0
-                    ? `${formatScore(questionPoints)} // ${formatScore(-wrongPoints)} pts`
-                    : `${formatScore(questionPoints)} pts`}
+                    ? `${formatScore(questionPoints)} // ${formatScore(-wrongPoints)} ${t("common.pts")}`
+                    : `${formatScore(questionPoints)} ${t("common.pts")}`}
                 </p>
               ) : null}
             </div>
-            {isFinished ? <Badge variant="secondary">Finished</Badge> : null}
+            {isFinished ? (
+              <Badge variant="secondary">{t("common.finished")}</Badge>
+            ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {!isFinished ? (
               <EndGameButton
                 variant="ghost"
                 size="icon-sm"
-                aria-label="End game"
+                aria-label={t("game.endGame")}
               >
                 <FlagIcon />
               </EndGameButton>
@@ -77,14 +84,14 @@ export function GamePageContent() {
             <ThemeToggle />
             <Link
               href="/stats"
-              aria-label="Stats"
+              aria-label={t("game.stats")}
               className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
             >
               <BarChart3Icon />
             </Link>
             <Link
               href="/"
-              aria-label="Setup"
+              aria-label={t("game.setup")}
               className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
             >
               <SettingsIcon />

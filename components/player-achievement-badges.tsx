@@ -1,10 +1,11 @@
+"use client"
+
 import type { TGameAchievement } from "@/schemas/achievement.schema"
 
 import { Badge } from "@/components/ui/badge"
-import {
-  formatAchievementLabel,
-  getAchievementDisplay,
-} from "@/lib/achievement-display"
+import { getAchievementDisplay } from "@/lib/achievement-display"
+import { getAchievementLabel } from "@/lib/i18n/helpers"
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface PlayerAchievementBadgesProps {
@@ -18,6 +19,8 @@ export function PlayerAchievementBadges({
   className,
   compact = false,
 }: PlayerAchievementBadgesProps) {
+  const { t } = useTranslation()
+
   if (achievements.length === 0) {
     return null
   }
@@ -37,7 +40,12 @@ export function PlayerAchievementBadges({
               display.className
             )}
           >
-            {formatAchievementLabel(achievement.type, achievement.count)}
+            {getAchievementLabel(
+              t,
+              achievement.type,
+              achievement.count,
+              display.emoji
+            )}
           </Badge>
         )
       })}

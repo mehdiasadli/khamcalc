@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { prefersReducedMotion } from "@/lib/feedback/environment"
+import { useTranslation } from "@/lib/i18n/context"
 import { useAppStore } from "@/stores"
 import { SmartphoneIcon, Volume2Icon } from "lucide-react"
 import { useSyncExternalStore } from "react"
@@ -30,6 +31,7 @@ function usePrefersReducedMotion() {
 }
 
 export function HostFeedbackSettings() {
+  const { t } = useTranslation()
   const preferences = useAppStore((state) => state.hostPreferences)
   const setHostPreferences = useAppStore((state) => state.setHostPreferences)
   const reducedMotion = usePrefersReducedMotion()
@@ -41,11 +43,9 @@ export function HostFeedbackSettings() {
           <div className="flex min-w-0 flex-col gap-1">
             <FieldLabel htmlFor="host-sounds" className="inline-flex items-center gap-2">
               <Volume2Icon className="size-4 text-muted-foreground" />
-              Sounds
+              {t("hostFeedback.sounds")}
             </FieldLabel>
-            <FieldDescription>
-              Short cues when you mark answers correct, incorrect, or undo them.
-            </FieldDescription>
+            <FieldDescription>{t("hostFeedback.soundsHintLong")}</FieldDescription>
           </div>
           <Switch
             id="host-sounds"
@@ -66,11 +66,9 @@ export function HostFeedbackSettings() {
               className="inline-flex items-center gap-2"
             >
               <SmartphoneIcon className="size-4 text-muted-foreground" />
-              Vibrations
+              {t("hostFeedback.haptics")}
             </FieldLabel>
-            <FieldDescription>
-              Quick haptic taps on supported phones while you host.
-            </FieldDescription>
+            <FieldDescription>{t("hostFeedback.hapticsHintLong")}</FieldDescription>
           </div>
           <Switch
             id="host-haptics"
@@ -85,8 +83,7 @@ export function HostFeedbackSettings() {
 
       {reducedMotion ? (
         <p className="text-xs text-muted-foreground">
-          Reduced motion is enabled on this device, so sounds and vibrations stay
-          off.
+          {t("hostFeedback.reducedMotionOff")}
         </p>
       ) : null}
     </FieldGroup>

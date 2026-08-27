@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "@/lib/i18n/context"
 import { useAppStore } from "@/stores"
 
 interface NewGameDialogProps {
@@ -26,6 +27,7 @@ export function NewGameDialog({
   onOpenChange,
   onConfirmed,
 }: NewGameDialogProps) {
+  const { t } = useTranslation()
   const resetGame = useAppStore((state) => state.resetGame)
 
   function handleConfirm() {
@@ -38,16 +40,13 @@ export function NewGameDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Start a new game?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This clears the current game and scores. Player names and order are
-            kept.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("game.newGameTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("game.newGameBody")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={handleConfirm}>
-            New game
+            {t("game.newGame")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -61,15 +60,16 @@ interface NewGameButtonProps extends ComponentProps<typeof Button> {
 
 export function NewGameButton({
   onConfirmed,
-  children = "New game",
+  children,
   ...props
 }: NewGameButtonProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <Button type="button" {...props} onClick={() => setOpen(true)}>
-        {children}
+        {children ?? t("game.newGame")}
       </Button>
       <NewGameDialog
         open={open}

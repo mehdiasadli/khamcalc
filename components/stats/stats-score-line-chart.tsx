@@ -23,6 +23,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { useTranslation } from "@/lib/i18n/context"
 
 interface StatsScoreLineChartProps {
   analytics: TGameAnalytics
@@ -33,6 +34,7 @@ export function StatsScoreLineChart({
   analytics,
   players,
 }: StatsScoreLineChartProps) {
+  const { t } = useTranslation()
   const activePlayers = players.filter((player) => !player.removedAt)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(activePlayers.map((player) => player.id))
@@ -51,7 +53,7 @@ export function StatsScoreLineChart({
   const data = useMemo(
     () =>
       analytics.roundBreakdown.map((row) => ({
-        round: `R${row.round}`,
+        round: t("common.roundShort", { round: row.round }),
         ...Object.fromEntries(
           activePlayers.map((player) => [
             player.id,
@@ -59,7 +61,7 @@ export function StatsScoreLineChart({
           ])
         ),
       })),
-    [analytics.roundBreakdown, activePlayers]
+    [analytics.roundBreakdown, activePlayers, t]
   )
 
   function togglePlayer(playerId: string) {
@@ -85,12 +87,12 @@ export function StatsScoreLineChart({
     return (
       <Card size="sm" className="ring-foreground/5">
         <CardHeader>
-          <CardTitle>Score progress</CardTitle>
-          <CardDescription>Cumulative score by round</CardDescription>
+          <CardTitle>{t("stats.scoreOverRounds")}</CardTitle>
+          <CardDescription>{t("stats.scoreChartEmpty")}</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Play a round to see score trends.
+            {t("stats.scoreChartEmpty")}
           </p>
         </CardContent>
       </Card>
@@ -100,10 +102,8 @@ export function StatsScoreLineChart({
   return (
     <Card size="sm" className="ring-foreground/5">
       <CardHeader>
-        <CardTitle>Score progress</CardTitle>
-        <CardDescription>
-          Cumulative score by round · toggle players below
-        </CardDescription>
+        <CardTitle>{t("stats.scoreOverRounds")}</CardTitle>
+        <CardDescription>{t("stats.scoreChartEmpty")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ export function StatsScoreLineChart({
               onClick={selectAll}
               className="rounded-full focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring"
             >
-              <Badge variant="ghost">All</Badge>
+              <Badge variant="ghost">{t("common.all")}</Badge>
             </button>
           ) : null}
         </div>

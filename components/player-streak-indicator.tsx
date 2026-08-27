@@ -1,3 +1,6 @@
+"use client"
+
+import { useTranslation } from "@/lib/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface PlayerStreakIndicatorProps {
@@ -11,6 +14,8 @@ export function PlayerStreakIndicator({
   isHot = false,
   className,
 }: PlayerStreakIndicatorProps) {
+  const { t } = useTranslation()
+
   if (streak <= 0) {
     return null
   }
@@ -22,7 +27,7 @@ export function PlayerStreakIndicator({
         isHot ? "text-primary" : "text-muted-foreground",
         className
       )}
-      aria-label={`${streak} answer streak`}
+      aria-label={`${streak} ${t("common.streak")}`}
     >
       <span
         aria-hidden
@@ -31,7 +36,9 @@ export function PlayerStreakIndicator({
           isHot ? "bg-primary shadow-[0_0_8px_color-mix(in_oklch,var(--primary),transparent_55%)]" : "bg-muted-foreground/60"
         )}
       />
-      <span>{streak} streak</span>
+      <span>
+        {streak} {t("common.streak")}
+      </span>
     </div>
   )
 }

@@ -9,10 +9,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useTranslation } from "@/lib/i18n/context"
 import { useAppStore } from "@/stores"
 import { Volume2Icon } from "lucide-react"
 
 export function HostFeedbackMenu() {
+  const { t } = useTranslation()
   const preferences = useAppStore((state) => state.hostPreferences)
   const active = preferences.soundsEnabled || preferences.hapticsEnabled
 
@@ -24,7 +26,7 @@ export function HostFeedbackMenu() {
             type="button"
             variant={active ? "secondary" : "ghost"}
             size="icon-sm"
-            aria-label="Host feedback settings"
+            aria-label={t("hostFeedback.menu")}
           />
         }
       >
@@ -33,7 +35,7 @@ export function HostFeedbackMenu() {
       <DropdownMenuContent align="end" className="w-72 p-3">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-0 pb-2">
-            Host feedback
+            {t("hostFeedback.title")}
           </DropdownMenuLabel>
           <HostFeedbackSettings />
         </DropdownMenuGroup>

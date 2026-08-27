@@ -1,15 +1,21 @@
 import { isRoundComplete } from "@/lib/achievements"
 import { detectPresetName } from "@/lib/config"
 import {
+  formatElapsedDuration,
+  formatPercent as formatPercentValue,
+} from "@/lib/i18n/format"
+import { getLocalizedPresetName } from "@/lib/i18n/helpers"
+import { createTranslator } from "@/lib/i18n/translate"
+import {
   getCumulativeScoresThroughRound,
   getRoundScores,
   recalculateScores,
 } from "@/lib/scoring"
 import { getLongestCorrectStreak } from "@/lib/streaks"
-import { formatDuration, formatPercent } from "@/lib/stats-format"
 import type { TGameState, TQuestionRecord } from "@/schemas/game.schema"
 import type { TGameConfig } from "@/schemas/config.schema"
 import type { TPlayer } from "@/schemas/player.schema"
+import type { TLocale } from "@/schemas/locale.schema"
 import { getPlayerAnswerStats } from "@/lib/player-answer-stats"
 import { PWA_APP_NAME } from "@/lib/pwa/constants"
 
@@ -396,60 +402,87 @@ export function getGameAnalytics(input: TAnalyticsInput): TGameAnalytics {
   }
 }
 
-export function formatGameSummary(input: TAnalyticsInput): string {
+export function formatGameSummary(
+  input: TAnalyticsInput,
+  locale: TLocale = "en"
+): string {
   const analytics = getGameAnalytics(input)
   const { overview, players, leaderboardTimeline } = analytics
   const nameById = getPlayerNameMap(input.players)
+  const t = createTranslator(locale)
 
   const statusLabel =
     overview.progress.status === "finished"
-      ? "Finished"
+      ? t("common.finished")
       : overview.progress.status === "playing"
-        ? "Live"
-        : "Idle"
+        ? t("common.live")
+        : t("common.idle")
 
-  const presetLabel = overview.presetName ?? "Custom"
-  const progressLabel = [
-    `Round ${overview.progress.currentRound}`,
-    `Question ${overview.progress.currentQuestion}`,
-  ].join(" · ")
+  const presetLabel = getLocalizedPresetName(input.config, t)
+  const progressLabel = t("game.roundQuestion", {
+    round: overview.progress.currentRound,
+    question: overview.progress.currentQuestion,
+  })
 
   const rankedPlayers = [...players].sort((a, b) => a.rank - b.rank)
   const scoreboardLines = rankedPlayers.map((player, index) => {
     const medal =
       index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "  "
-    const removedSuffix = player.removed ? " (removed)" : ""
-    return `${medal} ${player.name}${removedSuffix} — ${player.score} pts`
+    return t("summary.scoreLine", {
+      medal,
+      name: player.name,
+      removed: player.removed ? ` ${t("common.removed")}` : "",
+      score: player.score,
+    })
   })
 
   const statLines = rankedPlayers.map((player) => {
     const attempts = player.correctCount + player.wrongCount
-    const attemptLabel =
+    const stats =
       attempts > 0
-        ? `${player.correctCount}/${attempts} (${formatPercent(player.accuracy)})`
-        : "no attempts"
-    const streakLabel =
+        ? `${player.correctCount}/${attempts} (${formatPercentValue(player.accuracy, locale)})`
+        : t("common.noAttempts")
+    const streak =
       player.longestCorrectStreak > 0
-        ? ` · streak ${player.longestCorrectStreak}`
+        ? t("summary.streakSuffix", { count: player.longestCorrectStreak })
         : ""
-    return `- ${player.name}: ${attemptLabel}${streakLabel}`
+
+    return t("summary.playerLine", {
+      name: player.name,
+      stats,
+      streak,
+    })
   })
 
   const latestLeader = leaderboardTimeline.at(-1)
   const leaderLine = latestLeader?.leaderId
-    ? `Leader after R${latestLeader.round}: ${nameById.get(latestLeader.leaderId) ?? "Unknown"} (${latestLeader.leaderScore} pts)`
+    ? t("summary.leaderAfter", {
+        round: latestLeader.round,
+        name:
+          nameById.get(latestLeader.leaderId) ?? t("common.unknown"),
+        score: latestLeader.leaderScore,
+      })
     : null
 
   const lines = [
-    `${PWA_APP_NAME} — ${presetLabel} (${statusLabel})`,
+    t("summary.title", {
+      appName: PWA_APP_NAME,
+      preset: presetLabel,
+      status: statusLabel,
+    }),
     progressLabel,
-    `Duration: ${formatDuration(overview.elapsedMs)}`,
-    `Questions: ${overview.questionsPlayed} played (${overview.skippedCount} skipped)`,
+    t("summary.duration", {
+      duration: formatElapsedDuration(overview.elapsedMs, locale),
+    }),
+    t("summary.questions", {
+      played: overview.questionsPlayed,
+      skipped: overview.skippedCount,
+    }),
     "",
-    "Scores",
+    t("summary.scores"),
     ...scoreboardLines,
     "",
-    "Player stats",
+    t("summary.playerStats"),
     ...statLines,
   ]
 

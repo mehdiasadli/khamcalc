@@ -20,23 +20,30 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-
-const barChartConfig = {
-  correct: {
-    label: "Correct",
-    color: "var(--chart-1)",
-  },
-  incorrect: {
-    label: "Incorrect",
-    color: "var(--destructive)",
-  },
-} satisfies ChartConfig
+import { useTranslation } from "@/lib/i18n/context"
 
 interface StatsPlayerBarChartProps {
   analytics: TGameAnalytics
 }
 
 export function StatsPlayerBarChart({ analytics }: StatsPlayerBarChartProps) {
+  const { t } = useTranslation()
+
+  const barChartConfig = useMemo(
+    () =>
+      ({
+        correct: {
+          label: t("common.correct"),
+          color: "var(--chart-1)",
+        },
+        incorrect: {
+          label: t("common.incorrect"),
+          color: "var(--destructive)",
+        },
+      }) satisfies ChartConfig,
+    [t]
+  )
+
   const data = useMemo(
     () =>
       analytics.players
@@ -53,11 +60,13 @@ export function StatsPlayerBarChart({ analytics }: StatsPlayerBarChartProps) {
     return (
       <Card size="sm" className="ring-foreground/5">
         <CardHeader>
-          <CardTitle>Correct vs incorrect</CardTitle>
-          <CardDescription>Per-player answer marks</CardDescription>
+          <CardTitle>{t("stats.playerBreakdown")}</CardTitle>
+          <CardDescription>{t("stats.playerBreakdownEmpty")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No player data yet.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("stats.playerBreakdownEmpty")}
+          </p>
         </CardContent>
       </Card>
     )
@@ -66,8 +75,8 @@ export function StatsPlayerBarChart({ analytics }: StatsPlayerBarChartProps) {
   return (
     <Card size="sm" className="ring-foreground/5">
       <CardHeader>
-        <CardTitle>Correct vs incorrect</CardTitle>
-        <CardDescription>Per-player answer marks</CardDescription>
+        <CardTitle>{t("stats.playerBreakdown")}</CardTitle>
+        <CardDescription>{t("stats.playerBreakdownEmpty")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={barChartConfig} className="aspect-[4/3] min-h-56 w-full">

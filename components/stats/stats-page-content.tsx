@@ -19,6 +19,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useTranslation } from "@/lib/i18n/context"
+import { getLocalizedPresetName } from "@/lib/i18n/helpers"
 import { cn } from "@/lib/utils"
 import { useAppStore, useGameAnalytics } from "@/stores"
 import {
@@ -32,6 +34,7 @@ const statsTabParser = parseAsStringLiteral(["overview", "players"]).withDefault
 )
 
 export function StatsPageContent() {
+  const { t, locale } = useTranslation()
   const game = useAppStore((state) => state.game)
   const config = useAppStore((state) => state.config)
   const players = useAppStore((state) => state.players)
@@ -41,8 +44,8 @@ export function StatsPageContent() {
   const summary = useMemo(() => {
     if (!game) return ""
 
-    return formatGameSummary({ game, config, players })
-  }, [game, config, players])
+    return formatGameSummary({ game, config, players }, locale)
+  }, [game, config, players, locale])
 
   if (!game || !analytics) {
     return (
@@ -52,16 +55,14 @@ export function StatsPageContent() {
             <EmptyMedia variant="icon">
               <BarChart3Icon />
             </EmptyMedia>
-            <EmptyTitle>No game to analyze</EmptyTitle>
-            <EmptyDescription>
-              Start or continue a game to see live stats and player breakdowns.
-            </EmptyDescription>
+            <EmptyTitle>{t("stats.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("stats.emptyBody")}</EmptyDescription>
           </EmptyHeader>
           <Link
             href="/"
             className={cn(buttonVariants({ variant: "default" }))}
           >
-            Go to setup
+            {t("stats.goToSetup")}
           </Link>
         </Empty>
       </div>
@@ -69,7 +70,7 @@ export function StatsPageContent() {
   }
 
   const isFinished = game.status === "finished"
-  const presetLabel = analytics.overview.presetName ?? "Custom"
+  const presetLabel = getLocalizedPresetName(config, t)
 
   return (
     <Tabs
@@ -85,22 +86,26 @@ export function StatsPageContent() {
         <div className="mx-auto flex w-full max-w-md flex-col gap-3 p-4 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <p className="truncate font-medium">{presetLabel} stats</p>
-              <Badge variant="secondary">{isFinished ? "Finished" : "Live"}</Badge>
+              <p className="truncate font-medium">
+                {t("stats.statsForPreset", { preset: presetLabel })}
+              </p>
+              <Badge variant="secondary">
+                {isFinished ? t("common.finished") : t("common.live")}
+              </Badge>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               <StatsShareActions summary={summary} />
               <ThemeToggle />
               <Link
                 href="/game"
-                aria-label="Back to game"
+                aria-label={t("stats.backToGame")}
                 className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
               >
                 <ArrowLeftIcon />
               </Link>
               <Link
                 href="/"
-                aria-label="Setup"
+                aria-label={t("game.setup")}
                 className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
               >
                 <SettingsIcon />
@@ -110,10 +115,10 @@ export function StatsPageContent() {
 
           <TabsList className="w-full">
             <TabsTrigger value="overview" className="flex-1">
-              Overview
+              {t("stats.overview")}
             </TabsTrigger>
             <TabsTrigger value="players" className="flex-1">
-              Players
+              {t("stats.players")}
             </TabsTrigger>
           </TabsList>
         </div>
