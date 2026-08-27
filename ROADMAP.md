@@ -319,11 +319,11 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
 
 | #    | Item                                                                                          | Status |
 | ---- | --------------------------------------------------------------------------------------------- | ------ |
-| 17.1 | **Heatmap model** — per player, cell = correct / wrong / skipped / not reached                | ⬜     |
-| 17.2 | **UI on `/stats?tab=players`** — under each player card                                       | ⬜     |
-| 17.3 | **Legend** — green correct, red wrong, gray skipped, empty/faint not reached                  | ⬜     |
-| 17.4 | **Export PNG** — share single player heatmap (canvas or `html-to-image`)                      | ⬜     |
-| 17.5 | **Large grids** — always render; **scrollable container** when questions × rounds is large (locked) | ⬜     |
+| 17.1 | **Heatmap model** — per player, cell = correct / wrong / skipped / not reached                | ✅     |
+| 17.2 | **UI on `/stats?tab=players`** — under each player card                                       | ✅     |
+| 17.3 | **Legend** — green correct, red wrong, gray skipped, empty/faint not reached                  | ✅     |
+| 17.4 | **Export PNG** — share single player heatmap (canvas or `html-to-image`)                      | ✅     |
+| 17.5 | **Large grids** — always render; **scrollable container** when questions × rounds is large (locked) | ✅     |
 
 ---
 
@@ -411,6 +411,7 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Grill-me locked: TriviScore, EN/AZ/RU, JSON-only, GA4, config randomize, scroll heatmaps, keep persist key |
 | 2026-08-27 | Update 12 complete — TriviScore rebrand, PWA icons regenerated, metadata and share copy updated |
 | 2026-08-27 | Update 13 complete — custom i18n (EN/AZ/RU), language picker, date-fns duration formatting |
+| 2026-08-27 | Update 17 complete — player answer heatmaps on stats tab, legend, scroll grids, canvas PNG export |
 
 ---
 

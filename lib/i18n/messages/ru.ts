@@ -199,6 +199,26 @@ export const ru: Messages = {
     answerStatsAria:
       "{correct} верно, {wrong} неверно, точность {accuracy}",
   },
+  heatmap: {
+    legendCorrect: "Верно",
+    legendWrong: "Неверно",
+    legendSkipped: "Пропущено",
+    legendNotReached: "Не достигнуто",
+    legendIdle: "Без отметки",
+    empty: "Тепловая карта появится после сыгранных вопросов.",
+    exportPng: "Экспорт PNG",
+    exportTitle: "Тепловая карта ответов",
+    ariaLabel: "Тепловая карта ответов для {name}",
+    axisHint: "Строки = вопросы · Столбцы = раунды",
+    cellTitle: "Р{round} В{question}: {state}",
+    state: {
+      correct: "Верно",
+      wrong: "Неверно",
+      skipped: "Пропущено",
+      not_reached: "Не достигнуто",
+      idle: "Без отметки",
+    },
+  },
   game: {
     roundQuestion: "Раунд {round} · Вопрос {question}",
     endGame: "Завершить игру",

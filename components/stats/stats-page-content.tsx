@@ -129,7 +129,7 @@ export function StatsPageContent() {
           <StatsOverviewTab analytics={analytics} players={players} />
         </TabsContent>
         <TabsContent value="players">
-          <StatsPlayersTab analytics={analytics} />
+          <StatsPlayersTab analytics={analytics} game={game} config={config} />
         </TabsContent>
       </main>
     </Tabs>

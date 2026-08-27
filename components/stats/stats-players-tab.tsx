@@ -3,7 +3,10 @@
 import type { TGameAnalytics } from "@/lib/analytics"
 import { formatScore, formatPointDelta } from "@/lib/scoring-format"
 import { useFormat, useTranslation } from "@/lib/i18n/context"
+import type { TGameConfig } from "@/schemas/config.schema"
+import type { TGameState } from "@/schemas/game.schema"
 
+import { PlayerHeatmap } from "@/components/stats/player-heatmap"
 import { StatsStreakChart } from "@/components/stats/stats-streak-chart"
 
 import {
@@ -17,6 +20,8 @@ import { Badge } from "@/components/ui/badge"
 
 interface StatsPlayersTabProps {
   analytics: TGameAnalytics
+  game: TGameState
+  config: TGameConfig
 }
 
 function StatRow({ label, value }: { label: string; value: string }) {
@@ -28,7 +33,11 @@ function StatRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
+export function StatsPlayersTab({
+  analytics,
+  game,
+  config,
+}: StatsPlayersTabProps) {
   const { t } = useTranslation()
   const { formatDecimal, formatPercent } = useFormat()
   const players = [...analytics.players].sort((a, b) => a.rank - b.rank)
@@ -125,6 +134,14 @@ export function StatsPlayersTab({ analytics }: StatsPlayersTabProps) {
               {roundPoints ? (
                 <p className="pt-1 text-xs text-muted-foreground">{roundPoints}</p>
               ) : null}
+
+              <PlayerHeatmap
+                className="pt-2 border-t border-border/50"
+                game={game}
+                config={config}
+                playerId={player.playerId}
+                playerName={player.name}
+              />
             </CardContent>
           </Card>
         )

@@ -197,6 +197,26 @@ export const en = {
     answerStatsAria:
       "{correct} correct, {wrong} wrong, {accuracy} accuracy",
   },
+  heatmap: {
+    legendCorrect: "Correct",
+    legendWrong: "Wrong",
+    legendSkipped: "Skipped",
+    legendNotReached: "Not reached",
+    legendIdle: "No mark",
+    empty: "Heatmap appears after questions are played.",
+    exportPng: "Export PNG",
+    exportTitle: "Answer heatmap",
+    ariaLabel: "Answer heatmap for {name}",
+    axisHint: "Rows = questions · Columns = rounds",
+    cellTitle: "R{round} Q{question}: {state}",
+    state: {
+      correct: "Correct",
+      wrong: "Wrong",
+      skipped: "Skipped",
+      not_reached: "Not reached",
+      idle: "No mark",
+    },
+  },
   game: {
     roundQuestion: "Round {round} · Question {question}",
     endGame: "End game",
