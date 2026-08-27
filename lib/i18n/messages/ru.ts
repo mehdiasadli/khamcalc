@@ -198,6 +198,7 @@ export const ru: Messages = {
     comeback: "Камбэк (последние 2 раунда)",
     answerStatsAria:
       "{correct} верно, {wrong} неверно, точность {accuracy}",
+    seeStats: "Смотреть статистику",
   },
   heatmap: {
     legendCorrect: "Верно",

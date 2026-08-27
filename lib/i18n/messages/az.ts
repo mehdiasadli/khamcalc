@@ -197,6 +197,7 @@ export const az: Messages = {
     wrongCorrectRatio: "Səhv / düzgün nisbəti",
     comeback: "Geri dönüş (son 2 raund)",
     answerStatsAria: "{correct} düzgün, {wrong} səhv, {accuracy} dəqiqlik",
+    seeStats: "Statistikaya bax",
   },
   heatmap: {
     legendCorrect: "Düzgün",

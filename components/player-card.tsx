@@ -20,7 +20,12 @@ import { PlayerAchievementBadges } from "@/components/player-achievement-badges"
 import { PlayerAnswerStats } from "@/components/player-answer-stats"
 import { PlayerRoundSticks } from "@/components/player-round-sticks"
 import type { TRoundStickState } from "@/lib/round-sticks"
-import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import {
+  BarChart3Icon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react"
 
 export type PlayerCardStatus = "idle" | "correct" | "wrong" | "disabled"
 
@@ -40,6 +45,7 @@ export interface PlayerCardProps {
   onIncorrect?: () => void
   onRename?: () => void
   onRemove?: () => void
+  onSeeStats?: () => void
 }
 
 function getInitials(name: string) {
@@ -105,11 +111,13 @@ export function PlayerCard({
   onIncorrect,
   onRename,
   onRemove,
+  onSeeStats,
 }: PlayerCardProps) {
   const { t } = useTranslation()
   const isWrong = status === "wrong" || status === "disabled"
   const isCorrect = status === "correct"
-  const hasActions = onCorrect || onIncorrect || onRename || onRemove
+  const hasActions =
+    onCorrect || onIncorrect || onRename || onRemove || onSeeStats
   const showSticks = Boolean(roundSticks && roundSticks.length > 0)
 
   return (
@@ -214,7 +222,7 @@ export function PlayerCard({
               </Button>
             ) : null}
 
-            {onRename || onRemove ? (
+            {onRename || onRemove || onSeeStats ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
@@ -230,6 +238,12 @@ export function PlayerCard({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuGroup>
+                    {onSeeStats ? (
+                      <DropdownMenuItem onClick={onSeeStats}>
+                        <BarChart3Icon />
+                        {t("players.seeStats")}
+                      </DropdownMenuItem>
+                    ) : null}
                     {onRename ? (
                       <DropdownMenuItem onClick={onRename}>
                         <PencilIcon />
@@ -237,7 +251,9 @@ export function PlayerCard({
                       </DropdownMenuItem>
                     ) : null}
                   </DropdownMenuGroup>
-                  {onRename && onRemove ? <DropdownMenuSeparator /> : null}
+                  {(onRename || onSeeStats) && onRemove ? (
+                    <DropdownMenuSeparator />
+                  ) : null}
                   {onRemove ? (
                     <DropdownMenuGroup>
                       <DropdownMenuItem

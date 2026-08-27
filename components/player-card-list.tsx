@@ -31,6 +31,7 @@ import {
   type PlayerCardStatus,
 } from "@/components/player-card"
 import { PlayerRenameDialog } from "@/components/player-rename-dialog"
+import { PlayerStatsModal } from "@/components/player-stats-modal"
 import { SortablePlayerCard } from "@/components/game/sortable-player-card"
 import { getPlayerAchievements } from "@/lib/achievements"
 import { sortAchievements } from "@/lib/achievement-display"
@@ -141,6 +142,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
   )
 
   const [renamePlayerId, setRenamePlayerId] = useState<string | null>(null)
+  const [statsPlayerId, setStatsPlayerId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog>(null)
 
   const renamePlayer = activePlayers.find((player) => player.id === renamePlayerId)
@@ -253,6 +255,7 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
       onRemove: disabled
         ? undefined
         : () => setConfirmDialog({ type: "remove", playerId: player.id }),
+      onSeeStats: () => setStatsPlayerId(player.id),
     }
   }
 
@@ -292,6 +295,13 @@ export function PlayerCardList({ disabled = false }: PlayerCardListProps) {
           </SortableContext>
         </DndContext>
       )}
+
+      <PlayerStatsModal
+        playerId={statsPlayerId}
+        onOpenChange={(open) => {
+          if (!open) setStatsPlayerId(null)
+        }}
+      />
 
       <PlayerRenameDialog
         open={renamePlayerId !== null}

@@ -196,6 +196,7 @@ export const en = {
     comeback: "Comeback (last 2 rounds)",
     answerStatsAria:
       "{correct} correct, {wrong} wrong, {accuracy} accuracy",
+    seeStats: "See stats",
   },
   heatmap: {
     legendCorrect: "Correct",

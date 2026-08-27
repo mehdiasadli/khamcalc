@@ -333,9 +333,9 @@ Update 1  →  Update 2  →  Update 3  →  Update 4
 
 | #    | Item                                                                                       | Status |
 | ---- | ------------------------------------------------------------------------------------------ | ------ |
-| 18.1 | **“See stats” in player card menu** — beside rename / remove                               | ⬜     |
-| 18.2 | **Player stats modal** — subset of Players tab: score, accuracy, streak, round points, heatmap (if 17 done) | ⬜     |
-| 18.3 | **Live updates** — modal recomputes from store while game is playing                       | ⬜     |
+| 18.1 | **“See stats” in player card menu** — beside rename / remove                               | ✅     |
+| 18.2 | **Player stats modal** — subset of Players tab: score, accuracy, streak, round points, heatmap (if 17 done) | ✅     |
+| 18.3 | **Live updates** — modal recomputes from store while game is playing                       | ✅     |
 
 ---
 
@@ -412,6 +412,7 @@ Browse: [skills.sh](https://skills.sh/)
 | 2026-08-27 | Update 12 complete — TriviScore rebrand, PWA icons regenerated, metadata and share copy updated |
 | 2026-08-27 | Update 13 complete — custom i18n (EN/AZ/RU), language picker, date-fns duration formatting |
 | 2026-08-27 | Update 17 complete — player answer heatmaps on stats tab, legend, scroll grids, canvas PNG export |
+| 2026-08-27 | Update 18 complete — in-game “See stats” modal with live score, accuracy, streak, round points, heatmap |
 
 ---
 
